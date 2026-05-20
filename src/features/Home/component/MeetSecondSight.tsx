@@ -1,20 +1,24 @@
 "use client";
 
 import { Brain, Radar, BarChart3 } from "lucide-react";
+import Image from "next/image";
 
 const features = [
   {
     icon: Brain,
+    image: "/meet.png",
     title: "AI Scenario Generator",
     desc: "Leverage LLMs and proprietary data models to instantly visualize multiple divergent futures.",
   },
   {
     icon: Radar,
+    image: "/meet2.png",
     title: "Strategy Stress Testing",
     desc: "Run your current roadmap against 10,000+ edge cases to identify hidden vulnerabilities.",
   },
   {
     icon: BarChart3,
+    image: "/meet3.png",
     title: "Board-Ready Reports",
     desc: "Synthesize complex data into executive-grade presentations and strategy memos in seconds.",
   },
@@ -38,27 +42,34 @@ export default function MeetSecondSight() {
         {/* Cards */}
         <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {features.map((item, index) => {
-            const Icon = item.icon;
-
             return (
               <div
                 key={index}
-                className="rounded-2xl bg-white border border-[#d6dee6] p-6 shadow-sm backdrop-blur-sm transition hover:shadow-md"
+                className="overflow-hidden rounded-2xl border border-[#e2e8f0] bg-white p-5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(0,0,0,0.08)]"
               >
-                {/* Icon */}
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-secondary">
-                  <Icon className="h-5 w-5 text-[#1f2937]" />
+                {/* Image/Illustration Container */}
+                <div className="relative overflow-hidden rounded-xl bg-[#f1f5f9] aspect-[16/10] flex items-center justify-center">
+                  <Image
+                    width={500}
+                    height={500}
+                    src={item.image}
+                    alt={item.title}
+                    className="h-full w-full object-cover object-center"
+                  />
                 </div>
 
-                {/* Title */}
-                <h3 className="mt-5 text-lg font-semibold text-[#1f2937]">
-                  {item.title}
-                </h3>
+                {/* Text Content */}
+                <div className="pt-5 px-1">
+                  {/* Title */}
+                  <h3 className="text-lg font-bold text-[#0f172a] tracking-tight">
+                    {item.title}
+                  </h3>
 
-                {/* Description */}
-                <p className="mt-3 text-sm leading-relaxed text-[#6b7280]">
-                  {item.desc}
-                </p>
+                  {/* Description */}
+                  <p className="mt-2 text-sm leading-relaxed text-[#475569]">
+                    {item.desc}
+                  </p>
+                </div>
               </div>
             );
           })}

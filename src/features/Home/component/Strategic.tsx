@@ -27,7 +27,7 @@ const data = [
 
 export default function Strategic() {
   return (
-    <section className="bg-[#DEF0FA] py-16 md:py-24">
+    <section className=" py-16 md:py-24">
       <div className="container mx-auto px-4">
         {/* Heading */}
         <div className="text-center mx-auto container">

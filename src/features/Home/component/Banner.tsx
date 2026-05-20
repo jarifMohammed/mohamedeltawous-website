@@ -15,21 +15,25 @@ const riskIndicators = [
 
 const scenarios = [
   {
-    title: "Scenario A: Hypergrowth",
-    subtitle: "High Uncertainty / High Impact",
+    title: "Scenario A: Acceleration Economy",
+    subtitle:
+      "Rapid growth. Disrupted markets. Expanding opportunity. Signals AI ",
     bordered: true,
   },
   {
-    title: "Scenario B: Stalemate",
-    subtitle: "Low Uncertainty / Med Impact",
+    title: "Scenario B: Controlled Stability",
+    subtitle:
+      "Predictable markets. Slower innovation. Operational optimization. Signals Regulatory balance Moderate growth Industry maturity",
   },
   {
-    title: "Scenario C: Fragmentation",
-    subtitle: "High Uncertainty / Low Impact",
+    title: "Scenario C: Fractured Landscape",
+    subtitle:
+      "Volatility rises. Markets diverge. Uncertainty intensifies. Signals Geopolitical instability Consumer fragmentation Supply chain disruption",
   },
   {
-    title: "Scenario D: Consolidation",
-    subtitle: "Low Uncertainty / Low Impact",
+    title: "Scenario D: Power Concentration",
+    subtitle:
+      "Market consolidation. Dominant platforms. Reduced flexibility. Signals Mergers accelerate",
   },
 ];
 
@@ -50,9 +54,9 @@ export default function Banner() {
           </div>
 
           <h1 className="mt-8 text-[40px] font-extrabold leading-[1.1] text-[#0F172A] sm:text-6xl lg:text-[76px] tracking-tight">
-            AI–Powered Scenario Intelligence
+            AI-Powered Scenario
             <br className="hidden md:block" />
-            for Strategic Leaders
+            Planning Platform.
           </h1>
 
           <p className="mx-auto mt-8 max-w-4xl text-[17px] leading-relaxed text-[#5B6B82] sm:text-xl font-medium">
