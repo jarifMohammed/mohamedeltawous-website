@@ -2,12 +2,154 @@
 
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Mail, Lock, User } from "lucide-react";
+import { Mail, Lock, User, Eye, EyeOff, Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { signIn, getSession } from "next-auth/react";
+import { toast } from "sonner";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+// ======================
+// Validation Schemas
+// ======================
+
+const loginSchema = z.object({
+  email: z.string().email("Valid email is required"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
+
+const registerSchema = z
+  .object({
+    fullName: z.string().min(2, "Name is required"),
+    email: z.string().email("Valid email is required"),
+    password: z.string().min(6, "Password must be at least 6 characters"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    path: ["confirmPassword"],
+    message: "Passwords do not match",
+  });
+
+type LoginFormType = z.infer<typeof loginSchema>;
+type RegisterFormType = z.infer<typeof registerSchema>;
 
 export default function AnimatedAuth() {
   const [isLogin, setIsLogin] = useState(true);
 
+  // Login states
+  const [loginLoading, setLoginLoading] = useState(false);
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
+
+  // Register states
+  const [registerLoading, setRegisterLoading] = useState(false);
+  const [showRegisterPassword, setShowRegisterPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const router = useRouter();
+
   const toggleForm = () => setIsLogin(!isLogin);
+
+  // ======================
+  // Login Form
+  // ======================
+
+  const loginForm = useForm<LoginFormType>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  const handleLogin = async (payload: LoginFormType) => {
+    try {
+      setLoginLoading(true);
+
+      const res = await signIn("credentials", {
+        email: payload.email,
+        password: payload.password,
+        redirect: false,
+      });
+
+      if (res?.error) {
+        toast.error(res.error);
+        return;
+      }
+
+      toast.success("Login successful!");
+
+      router.push("/");
+    } catch (error) {
+      console.error(error);
+      toast.error("Something went wrong!");
+    } finally {
+      setLoginLoading(false);
+    }
+  };
+
+  // ======================
+  // Register Form
+  // ======================
+
+  const registerForm = useForm<RegisterFormType>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      fullName: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
+  });
+
+  const handleRegister = async (values: RegisterFormType) => {
+    try {
+      setRegisterLoading(true);
+
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/register`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: values.fullName,
+            email: values.email,
+            password: values.password,
+          }),
+        },
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data?.message || "Registration failed");
+      }
+
+      toast.success("Account created successfully!");
+
+      // Auto login after registration
+      const loginRes = await signIn("credentials", {
+        email: values.email,
+        password: values.password,
+        redirect: false,
+      });
+
+      if (loginRes?.error) {
+        setIsLogin(true);
+        return;
+      }
+
+      router.push("/");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Registration failed",
+      );
+    } finally {
+      setRegisterLoading(false);
+    }
+  };
 
   return (
     <section className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
@@ -16,7 +158,11 @@ export default function AnimatedAuth() {
         {/* Sliding Overlay Section */}
         <motion.div
           animate={{ x: isLogin ? "100%" : "0%" }}
-          transition={{ type: "spring", stiffness: 100, damping: 20 }}
+          transition={{
+            type: "spring",
+            stiffness: 100,
+            damping: 20,
+          }}
           className="absolute top-0 left-0 w-1/2 h-full bg-[#DEF0FA] z-20 hidden lg:flex flex-col items-center justify-center text-white p-12 text-center"
         >
           <motion.div
@@ -28,11 +174,13 @@ export default function AnimatedAuth() {
             <h2 className="text-4xl font-bold mb-4 text-[#0F172A]">
               {isLogin ? "Hello, Friend!" : "Welcome Back!"}
             </h2>
+
             <p className="text-[#475569] mb-8 leading-relaxed">
               {isLogin
                 ? "Enter your personal details and start your journey with us."
                 : "To keep connected with us please login with your personal info."}
             </p>
+
             <button
               onClick={toggleForm}
               className="px-10 py-3 border-2 border-[#0F172A] text-[#0F172A] cursor-pointer rounded-[8px] font-bold hover:bg-[#0F172A] hover:text-white transition-all duration-300"
@@ -42,31 +190,73 @@ export default function AnimatedAuth() {
           </motion.div>
         </motion.div>
 
-        {/* --- Login Form Section --- */}
+        {/* ======================
+            Login Section
+        ====================== */}
+
         <div
-          className={`w-full lg:w-1/2 p-10 md:p-16 flex flex-col justify-center transition-opacity duration-500 ${!isLogin && "lg:opacity-0"}`}
+          className={`w-full lg:w-1/2 p-10 md:p-16 flex flex-col justify-center transition-opacity duration-500 ${
+            !isLogin && "lg:opacity-0"
+          }`}
         >
           <h2 className="text-3xl font-bold text-slate-900 mb-2">
             Login to Account
           </h2>
+
           <p className="text-slate-500 mb-8">Use your email for login</p>
 
-          <form className="space-y-4">
+          <form
+            onSubmit={loginForm.handleSubmit(handleLogin)}
+            className="space-y-4"
+          >
             <AuthInput
               icon={<Mail size={18} />}
               type="email"
               placeholder="Email"
+              {...loginForm.register("email")}
             />
+
+            {loginForm.formState.errors.email && (
+              <p className="text-red-500 text-sm">
+                {loginForm.formState.errors.email.message}
+              </p>
+            )}
+
             <AuthInput
               icon={<Lock size={18} />}
-              type="password"
+              type={showLoginPassword ? "text" : "password"}
               placeholder="Password"
+              {...loginForm.register("password")}
+              showPassword={showLoginPassword}
+              setShowPassword={setShowLoginPassword}
             />
-            <button className="text-sm text-slate-500 hover:text-pink-500 transition-colors">
+
+            {loginForm.formState.errors.password && (
+              <p className="text-red-500 text-sm">
+                {loginForm.formState.errors.password.message}
+              </p>
+            )}
+
+            <button
+              type="button"
+              className="text-sm text-slate-500 hover:text-pink-500 transition-colors"
+            >
               Forgot password?
             </button>
-            <button className="w-full bg-[#0F172A] text-white py-4 rounded-[8px] font-bold hover:shadow-xl transition-all">
-              LOG IN
+
+            <button
+              type="submit"
+              disabled={loginLoading}
+              className="w-full bg-[#0F172A] text-white py-4 rounded-[8px] font-bold hover:shadow-xl transition-all flex items-center justify-center gap-2 disabled:opacity-70"
+            >
+              {loginLoading ? (
+                <>
+                  <Loader2 className="animate-spin" size={18} />
+                  Logging in...
+                </>
+              ) : (
+                "LOG IN"
+              )}
             </button>
           </form>
 
@@ -78,38 +268,94 @@ export default function AnimatedAuth() {
           </button>
         </div>
 
-        {/* --- Sign Up Form Section --- */}
+        {/* ======================
+            Register Section
+        ====================== */}
+
         <div
-          className={`w-full lg:w-1/2 p-10 md:p-16 flex flex-col justify-center transition-opacity duration-500 ${isLogin && "lg:opacity-0"}`}
+          className={`w-full lg:w-1/2 p-10 md:p-16 flex flex-col justify-center transition-opacity duration-500 ${
+            isLogin && "lg:opacity-0"
+          }`}
         >
           <h2 className="text-3xl font-bold text-slate-900 mb-2">
             Create Account
           </h2>
+
           <p className="text-slate-500 mb-8">Join our community today</p>
 
-          <form className="space-y-4">
+          <form
+            onSubmit={registerForm.handleSubmit(handleRegister)}
+            className="space-y-4"
+          >
             <AuthInput
               icon={<User size={18} />}
               type="text"
               placeholder="Full Name"
+              {...registerForm.register("fullName")}
             />
+
+            {registerForm.formState.errors.fullName && (
+              <p className="text-red-500 text-sm">
+                {registerForm.formState.errors.fullName.message}
+              </p>
+            )}
+
             <AuthInput
               icon={<Mail size={18} />}
               type="email"
               placeholder="Email"
+              {...registerForm.register("email")}
             />
+
+            {registerForm.formState.errors.email && (
+              <p className="text-red-500 text-sm">
+                {registerForm.formState.errors.email.message}
+              </p>
+            )}
+
             <AuthInput
               icon={<Lock size={18} />}
-              type="password"
+              type={showRegisterPassword ? "text" : "password"}
               placeholder="Password"
+              {...registerForm.register("password")}
+              showPassword={showRegisterPassword}
+              setShowPassword={setShowRegisterPassword}
             />
+
+            {registerForm.formState.errors.password && (
+              <p className="text-red-500 text-sm">
+                {registerForm.formState.errors.password.message}
+              </p>
+            )}
+
             <AuthInput
               icon={<Lock size={18} />}
-              type="password"
+              type={showConfirmPassword ? "text" : "password"}
               placeholder="Confirm Password"
+              {...registerForm.register("confirmPassword")}
+              showPassword={showConfirmPassword}
+              setShowPassword={setShowConfirmPassword}
             />
-            <button className="w-full bg-[#0F172A] text-white py-4 rounded-[8px] font-bold hover:shadow-lg transition-all">
-              SIGN UP
+
+            {registerForm.formState.errors.confirmPassword && (
+              <p className="text-red-500 text-sm">
+                {registerForm.formState.errors.confirmPassword.message}
+              </p>
+            )}
+
+            <button
+              type="submit"
+              disabled={registerLoading}
+              className="w-full bg-[#0F172A] text-white py-4 rounded-[8px] font-bold hover:shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-70"
+            >
+              {registerLoading ? (
+                <>
+                  <Loader2 className="animate-spin" size={18} />
+                  Creating Account...
+                </>
+              ) : (
+                "SIGN UP"
+              )}
             </button>
           </form>
 
@@ -125,16 +371,45 @@ export default function AnimatedAuth() {
   );
 }
 
-// Reusable Components
-function AuthInput({
-  ...props
-}: { icon: React.ReactNode } & React.InputHTMLAttributes<HTMLInputElement>) {
-  return (
-    <div className="relative group">
-      <input
-        {...props}
-        className="w-full px-5 py-4 rounded-[16px] border border-black/10 bg-white  focus:ring-1 focus:ring-black outline-none transition-all"
-      />
-    </div>
-  );
-}
+// ======================
+// Reusable Input
+// ======================
+
+type AuthInputProps = React.InputHTMLAttributes<HTMLInputElement> & {
+  icon: React.ReactNode;
+  showPassword?: boolean;
+  setShowPassword?: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
+const AuthInput = React.forwardRef<HTMLInputElement, AuthInputProps>(
+  ({ icon, showPassword, setShowPassword, type, ...props }, ref) => {
+    const isPassword = type === "password" || type === "text";
+
+    return (
+      <div className="relative group">
+        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+          {icon}
+        </div>
+
+        <input
+          ref={ref}
+          type={type}
+          {...props}
+          className="w-full pl-12 pr-14 py-4 rounded-[16px] border border-black/10 bg-white focus:ring-1 focus:ring-black outline-none transition-all"
+        />
+
+        {setShowPassword && (
+          <button
+            type="button"
+            onClick={() => setShowPassword((prev) => !prev)}
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400"
+          >
+            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
+        )}
+      </div>
+    );
+  },
+);
+
+AuthInput.displayName = "AuthInput";

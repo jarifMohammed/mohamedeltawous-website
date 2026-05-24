@@ -2,7 +2,7 @@
 
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 declare module "next-auth" {
   interface Session {
@@ -66,17 +66,15 @@ const handler = NextAuth({
           });
 
           const data = await res.json();
-          console.log("API Login Response:", JSON.stringify(data, null, 2));
-
+          console.log("data", data);
           if (!res.ok) {
-            throw new Error(data.message || "Login failed");
+            throw new Error(data?.message || "Login failed");
           }
-
           const user = data.data?.user;
+
           const accessToken = data.data?.accessToken;
 
           console.log("User details:", user);
-          console.log("Token:", accessToken);
 
           if (!user || !accessToken) {
             throw new Error("Invalid response from server");
@@ -94,7 +92,9 @@ const handler = NextAuth({
           };
         } catch (error) {
           console.error("Authorize error:", error);
-          throw new Error("Invalid email or password");
+          const errorMessage =
+            error instanceof Error ? error.message : "Something went wrong";
+          throw new Error(errorMessage);
         }
       },
     }),

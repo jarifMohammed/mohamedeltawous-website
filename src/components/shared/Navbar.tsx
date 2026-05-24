@@ -450,7 +450,7 @@ export default function Navbar() {
               <SelectTrigger className="notranslate h-[46px] min-w-[160px] rounded-xl border border-gray-200 bg-white/90 px-4 text-[#111827] shadow-sm transition-all duration-200 hover:border-gray-300 hover:bg-white focus:ring-0 focus:ring-offset-0">
                 <div className="flex items-center gap-2">
                   <Globe size={18} className="text-gray-500" />
-                  <SelectValue placeholder={"Language"} />
+                  <SelectValue placeholder="Select Language" />
                 </div>
               </SelectTrigger>
 
