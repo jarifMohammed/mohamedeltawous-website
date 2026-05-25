@@ -1,5 +1,6 @@
 import Navbar from "@/components/shared/Navbar";
 import Footer from "@/components/shared/Footer";
+import PageTransition from "@/components/shared/PageTransition";
 import { Metadata } from "next";
 import React, { Suspense } from "react";
 
@@ -22,7 +23,9 @@ export default function RootLayout({
         </Suspense>
       </div>
 
-      <main className="flex-1">{children}</main>
+      <main className="flex-1">
+        <PageTransition>{children}</PageTransition>
+      </main>
 
       <Suspense fallback={null}>
         <Footer />

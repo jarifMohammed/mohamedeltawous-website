@@ -6,7 +6,11 @@ import type { Container, Engine } from "@tsparticles/engine";
 import { loadSlim } from "@tsparticles/slim";
 import type { ISourceOptions } from "@tsparticles/engine";
 
-export default function ParticlesBackground() {
+export default function ParticlesBackground({
+  id = "tsparticles",
+}: {
+  id?: string;
+}) {
   const [init, setInit] = useState(false);
 
   // this should be run only once per application lifetime
@@ -97,7 +101,7 @@ export default function ParticlesBackground() {
 
   return (
     <Particles
-      id="tsparticles"
+      id={id}
       particlesLoaded={particlesLoaded}
       options={options}
       className="absolute inset-0 h-full w-full"

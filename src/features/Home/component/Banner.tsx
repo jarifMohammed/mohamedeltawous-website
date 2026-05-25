@@ -2,8 +2,9 @@
 
 import { motion } from "framer-motion";
 import ParticlesBackground from "@/components/shared/ParticlesBackground";
+import CountUp from "@/components/shared/CountUp";
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const scenarios = [
   {
@@ -33,6 +34,16 @@ export default function Banner() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
   const [activeTab, setActiveTab] = useState<"Week" | "Month">("Month");
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    video
+      .play()
+      .then(() => setPlaying(true))
+      .catch(() => setPlaying(false));
+  }, []);
 
   const togglePlay = () => {
     if (!videoRef.current) return;
@@ -97,7 +108,10 @@ export default function Banner() {
               </div>
               <p className="text-[14px] font-medium text-[#5B6B82]">
                 Trusted by{" "}
-                <span className="font-bold text-[#0F172A]">2,400+</span> teams
+                <span className="font-bold text-[#0F172A]">
+                  <CountUp end={2400} suffix="+" fromTop duration={3.6} />
+                </span>{" "}
+                teams
               </p>
             </div>
           </div>
@@ -111,37 +125,20 @@ export default function Banner() {
                 src="/videos/banner.mp4"
                 className="w-full h-full object-cover aspect-video"
                 loop
+                autoPlay
                 muted
                 playsInline
                 onEnded={() => setPlaying(false)}
+                onPlay={() => setPlaying(true)}
+                onPause={() => setPlaying(false)}
               />
 
-              {/* Play overlay */}
-              {!playing && (
-                <button
-                  onClick={togglePlay}
-                  className="absolute inset-0 flex items-center justify-center bg-black/10 hover:bg-black/15 transition cursor-pointer"
-                  aria-label="Play video"
-                >
-                  <div className="h-14 w-14 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-lg hover:scale-105 transition-transform">
-                    <svg
-                      className="w-6 h-6 text-[#0F172A] ml-0.5"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M8 5v14l11-7z" />
-                    </svg>
-                  </div>
-                </button>
-              )}
-
-              {/* Pause button */}
-              {playing && (
-                <button
-                  onClick={togglePlay}
-                  className="absolute bottom-3 right-3 h-9 w-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-md hover:scale-105 transition-transform cursor-pointer"
-                  aria-label="Pause video"
-                >
+              <button
+                onClick={togglePlay}
+                className="absolute bottom-3 right-3 h-9 w-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-md hover:scale-105 transition-transform cursor-pointer"
+                aria-label={playing ? "Pause video" : "Play video"}
+              >
+                {playing ? (
                   <svg
                     className="w-4 h-4 text-[#0F172A]"
                     fill="currentColor"
@@ -149,10 +146,17 @@ export default function Banner() {
                   >
                     <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
                   </svg>
-                </button>
-              )}
+                ) : (
+                  <svg
+                    className="w-4 h-4 text-[#0F172A] ml-0.5"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                )}
+              </button>
             </div>
-            ``
             {/* Floating Card: Risk Forecast – top left */}
             <div className="absolute -top-5 -left-6 hidden sm:block z-10 opacity-90 backdrop-blur-md ">
               <div className="bg-white/80 rounded-2xl shadow-xl px-4 py-3 min-w-[150px] border border-gray-100">
@@ -172,7 +176,7 @@ export default function Banner() {
                 <div className="mt-1.5 flex items-center gap-2">
                   <span className="h-2 w-2 rounded-full bg-[#22C55E] flex-shrink-0" />
                   <span className="text-[18px] font-extrabold text-[#0F172A]">
-                    Low · 12%
+                    Low · <CountUp end={12} suffix="%" fromTop duration={3.2} />
                   </span>
                 </div>
               </div>
@@ -186,7 +190,14 @@ export default function Banner() {
                       Market Trend
                     </p>
                     <p className="mt-1 text-[18px] font-extrabold text-[#0F172A]">
-                      +24.8%
+                      <CountUp
+                        end={24.8}
+                        decimals={1}
+                        prefix="+"
+                        suffix="%"
+                        fromTop
+                        duration={3.8}
+                      />
                     </p>
                     <p className="text-[10px] text-[#94A3B8] font-medium">
                       QoQ
@@ -194,10 +205,18 @@ export default function Banner() {
                   </div>
                   <div className="flex items-end gap-0.5 h-8">
                     {[40, 60, 45, 70, 55, 80, 65].map((h, i) => (
-                      <div
+                      <motion.div
                         key={i}
-                        className="w-1.5 rounded-sm bg-[#3B82F6]"
+                        className="w-1.5 rounded-sm bg-[#3B82F6] origin-bottom"
                         style={{ height: `${h}%` }}
+                        initial={{ scaleY: 0.1, opacity: 0 }}
+                        animate={{ scaleY: 1, opacity: 1 }}
+                        transition={{
+                          duration: 1.25,
+                          delay: 0.35 + i * 0.14,
+                          ease: "easeOut",
+                        }}
+                        aria-hidden
                       />
                     ))}
                   </div>
@@ -228,10 +247,17 @@ export default function Banner() {
                       AI Prediction Accuracy
                     </p>
                     <p className="text-[20px] font-extrabold text-[#0F172A] leading-tight">
-                      96.4%
+                      <CountUp
+                        end={96.4}
+                        decimals={1}
+                        suffix="%"
+                        fromTop
+                        duration={4}
+                      />
                     </p>
                     <p className="text-[11px] text-[#94A3B8]">
-                      Across 1,284 simulations
+                      Across <CountUp end={1284} fromTop duration={3.4} />{" "}
+                      simulations
                     </p>
                   </div>
                 </div>
@@ -243,7 +269,7 @@ export default function Banner() {
 
       {/* DASHBOARD — Scenario Intelligence Matrix */}
 
-      <div className="mx-auto mt-24 rounded-[32px] font-sora relative z-50">
+      <div className="mx-auto mt-24 rounded-[32px] font-sora relative z-20">
         <div className="rounded-[31px] border border-[#111827]/20 shadow-[0_32px_80px_rgba(15,23,42,0.12)] bg-white/80 overflow-hidden container mx-auto ">
           <div className="p-5 md:p-10 z-50">
             <div className="rounded-[24px] bg-secondary p-6 md:p-8">
