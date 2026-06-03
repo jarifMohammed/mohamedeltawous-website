@@ -186,9 +186,13 @@ const ForceClassificationView: React.FC<ForceClassificationViewProps> = ({
         <button
           disabled={isGeneratingAxes}
           onClick={async () => {
+            
             setError(null);
             try {
+                  const sessionId = localStorage.getItem("sessionId");
+
               const payload = {
+                sessionId,
                 company: {
                   name: company.name,
                   industry: company.industry,
