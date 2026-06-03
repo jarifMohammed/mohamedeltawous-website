@@ -25,6 +25,7 @@ export interface DrivingForce {
 }
 
 export interface ClassifyPayload {
+  
   company: {
     projectTitle: string;
     name: string;
@@ -49,8 +50,10 @@ export interface UncertaintyItem {
 }
 
 export interface ClassifyResponse {
+  sessionId?: string;
   success: boolean;
   data: {
+    
     predetermined: (string | PredeterminedItem)[];
     uncertainties: (string | UncertaintyItem)[];
   };
@@ -58,6 +61,7 @@ export interface ClassifyResponse {
 }
 
 export interface AxesPayload {
+  
   company: {
     name: string;
     industry: string;
@@ -174,6 +178,7 @@ export interface ScenariosResponse {
 }
 
 export interface WindtunnelPayload {
+  sessionId: string;
   company: {
     name: string;
     focalQuestion: string;
@@ -218,6 +223,7 @@ export interface WindtunnelResponse {
 }
 
 export interface ReportPayload {
+  sessionId: string;
   workshopState: {
     company: {
       name: string;

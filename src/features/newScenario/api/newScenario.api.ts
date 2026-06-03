@@ -37,6 +37,7 @@ export const classifyWorkshop = async (
 export const generateAxes = async (
   data: AxesPayload,
 ): Promise<AxesResponse> => {
+  console.log(data)
   try {
     const response = await axiosInstance.post(`/workshop/axes`, data);
     return response.data;
@@ -97,6 +98,7 @@ export const exportReport = async (
     const response = await axiosInstance.post(`/workshop/report`, data, {
       timeout: 350000,
     });
+    console.log(response.data)
     return response.data;
   } catch (error: unknown) {
     throw error;

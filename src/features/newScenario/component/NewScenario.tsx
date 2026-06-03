@@ -690,7 +690,9 @@ function NewScenarioContent() {
                   try {
                     const response = await classifyWorker(payload);
                     console.log("Successfully submitted data to API.");
-
+                    if (response?.sessionId) {
+                      localStorage.setItem("sessionId", response.sessionId);
+                    }
                     if (response?.data) {
                       // Update History
                       addHistory("user", "Classify forces.");
@@ -755,6 +757,7 @@ function NewScenarioContent() {
         {currentStep === 3 && classification && (
           <ForceClassificationView
             fullResponse={{
+      
               success: true,
               data: classification,
               history: conversationHistory,

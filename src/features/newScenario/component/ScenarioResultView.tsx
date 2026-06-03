@@ -90,7 +90,9 @@ const ScenarioResultView: React.FC = () => {
   };
 
   const handleFinalize = async () => {
+    const sessionId = localStorage.getItem("sessionId") || "";
     const payload: WindtunnelPayload = {
+      sessionId,
       company: {
         name: company.name,
         focalQuestion: company.focalQuestion,
@@ -169,7 +171,10 @@ const ScenarioResultView: React.FC = () => {
     if (!axes || isPending) return;
 
     try {
+      const sessionId = localStorage.getItem("sessionId") || "";
+
       const payload = {
+        sessionId,
         company: {
           name: company.name,
           industry: company.industry,
