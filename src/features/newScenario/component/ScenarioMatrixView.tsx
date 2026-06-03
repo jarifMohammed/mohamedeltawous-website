@@ -29,6 +29,7 @@ import {
   WindtunnelCell,
 } from "../types/newScenario.types";
 import { ChevronLeft } from "lucide-react";
+import { useSession } from "next-auth/react";
 
 /**
  * Helper to truncate text to exactly N words.
@@ -103,6 +104,9 @@ const normalizeWindtunnelData = (
 };
 
 const ScenarioMatrixView: React.FC = () => {
+  const sesessio = useSession();
+  const token = sesessio.data?.accessToken;
+  console.log(token);
   const {
     windtunnelData,
     strategicOptions,
@@ -175,7 +179,10 @@ const ScenarioMatrixView: React.FC = () => {
         normalizeWindtunnelData(windtunnelData, optIdx, strategicOptions),
     );
 
+const sessionId = localStorage.getItem("sessionId") || "";
+
     const payload: ReportPayload = {
+      sessionId,  
       workshopState: {
         company: {
           name: company.name,
@@ -233,7 +240,10 @@ const ScenarioMatrixView: React.FC = () => {
         `${process.env.NEXT_PUBLIC_API_URL}/workshop/report`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${token}`,
+          },
           body: JSON.stringify(payload),
         },
       );

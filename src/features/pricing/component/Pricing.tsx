@@ -1,6 +1,6 @@
 "use client";
 
-import React, { MouseEvent } from "react";
+import  { MouseEvent } from "react";
 import { Check } from "lucide-react";
 import {
   motion,
