@@ -1,6 +1,6 @@
 "use client";
 
-import  { MouseEvent } from "react";
+import { MouseEvent } from "react";
 import { Check } from "lucide-react";
 import {
   motion,
@@ -100,11 +100,10 @@ function PricingCard({
       viewport={{ once: true }}
       transition={{ delay: index * 0.1 }}
       onMouseMove={handleMouseMove}
-      className={`group relative flex flex-col p-8 rounded-3xl bg-white dark:bg-neutral-900 border transition-all duration-300 hover:shadow-xl ${
-        plan.popular
-          ? "border-blue-500 shadow-blue-500/10 shadow-xl lg:-translate-y-4"
-          : "border-neutral-200 dark:border-neutral-800"
-      }`}
+      className={`group relative flex flex-col p-8 rounded-3xl bg-white dark:bg-neutral-900 border transition-all duration-300 hover:shadow-xl ${plan.popular
+        ? "border-blue-500 shadow-blue-500/10 shadow-xl lg:-translate-y-4"
+        : "border-neutral-200 dark:border-neutral-800"
+        }`}
     >
       <motion.div
         className="pointer-events-none absolute -inset-px rounded-3xl opacity-0 group-hover:opacity-100 transition duration-300"
@@ -188,11 +187,10 @@ function PricingCard({
           onClick={() =>
             onSubscribe(plan.name.toLowerCase())
           }
-          className={`w-full py-3.5 px-4 rounded-xl font-medium transition-all duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed ${
-            plan.popular
-              ? "bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg"
-              : "bg-neutral-100 hover:bg-neutral-200 text-neutral-900 dark:bg-neutral-800 dark:hover:bg-neutral-700 dark:text-white"
-          }`}
+          className={`w-full py-3.5 px-4 rounded-xl font-medium transition-all duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed ${plan.popular
+            ? "bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg"
+            : "bg-neutral-100 hover:bg-neutral-200 text-neutral-900 dark:bg-neutral-800 dark:hover:bg-neutral-700 dark:text-white"
+            }`}
         >
           {isPending ? "Redirecting..." : plan.buttonText}
         </button>
@@ -203,10 +201,10 @@ function PricingCard({
 
 export default function Pricing() {
   const baseURL = process.env.NEXT_PUBLIC_API_URL;
- const session = useSession()
- const token = session.data?.accessToken 
-console.log(session)
- const { mutate: initializePayment, isPending } = useMutation({
+  const session = useSession()
+  const token = session.data?.accessToken
+  console.log(session)
+  const { mutate: initializePayment, isPending } = useMutation({
     mutationFn: async (tier: string) => {
       const response = await axios.post(
         `${baseURL}/subscription/initialize-payment`,
@@ -242,7 +240,7 @@ console.log(session)
   });
 
   return (
-    <section className="py-40 relative bg-neutral-50 dark:bg-neutral-950 overflow-hidden">
+    <section className="py-40 relative  dark:bg-neutral-950 overflow-hidden">
       {/* Background decorations */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-full overflow-hidden -z-10 pointer-events-none">
         <div className="absolute top-[-10%] left-[-10%] w-96 h-96 rounded-full bg-blue-500/10 blur-[120px]" />

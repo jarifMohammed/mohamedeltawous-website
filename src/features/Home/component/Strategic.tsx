@@ -4,6 +4,7 @@ import { motion, useMotionTemplate, useMotionValue } from "framer-motion";
 import Image from "next/image";
 import { MouseEvent } from "react";
 
+
 const data = [
   {
     icon: "/images/value.gif",

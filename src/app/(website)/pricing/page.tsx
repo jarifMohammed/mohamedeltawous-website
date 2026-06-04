@@ -1,4 +1,5 @@
-import BestBrands from '@/features/Home/component/BestBrands'
+
+import TestimonialGrid from '@/features/Home/component/Testimonials'
 import Pricing from '@/features/pricing/component/Pricing'
 import React from 'react'
 
@@ -7,7 +8,7 @@ export default function page() {
         <div>
             <Pricing />
             <div className='mb-4'>
-                <BestBrands />
+                <TestimonialGrid />
             </div>
         </div>
     )
