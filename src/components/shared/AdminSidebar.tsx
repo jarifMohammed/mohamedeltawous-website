@@ -6,7 +6,7 @@ import { useState } from "react";
 import {
   LayoutGrid,
   Users,
-  FileBarChart,
+  CreditCard,
   Settings,
   ChevronDown,
   LogOut,
@@ -32,7 +32,7 @@ const adminNavItems = [
     icon: LayoutGrid,
   },
   { name: "Users", href: "/admin/users", icon: Users },
-  { name: "Scenarios", href: "/admin/scenarios", icon: FileBarChart },
+  { name: "Payments", href: "/admin/payments", icon: CreditCard },
   { name: "Settings", href: "/admin/settings", icon: Settings },
 ];
 
