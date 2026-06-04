@@ -5,11 +5,12 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import {
   LayoutGrid,
-  PlusSquare,
-  FolderClock,
+  Users,
+  FileBarChart,
   Settings,
   ChevronDown,
   LogOut,
+  Shield,
   type LucideIcon,
 } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
@@ -24,18 +25,18 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-const sidebarNavItems = [
+const adminNavItems = [
   {
     name: "Dashboard Overview",
-    href: "/dashboard/dashboard-overview",
+    href: "/admin/dashboard-overview",
     icon: LayoutGrid,
   },
-  { name: "New Scenario", href: "/dashboard/new-scenario", icon: PlusSquare },
-  { name: "History", href: "/dashboard/history", icon: FolderClock },
-  { name: "Settings", href: "/dashboard/settings", icon: Settings },
+  { name: "Users", href: "/admin/users", icon: Users },
+  { name: "Scenarios", href: "/admin/scenarios", icon: FileBarChart },
+  { name: "Settings", href: "/admin/settings", icon: Settings },
 ];
 
-interface DashboardSidebarProps {
+interface AdminSidebarProps {
   readonly onNavClick?: () => void;
 }
 
@@ -57,7 +58,7 @@ function SidebarItem({
   onNavClick?: () => void;
 }) {
   const isActive =
-    item.href === "/dashboard"
+    item.href === "/admin"
       ? pathname === item.href
       : pathname === item.href || pathname.startsWith(`${item.href}/`);
 
@@ -80,10 +81,11 @@ function SidebarItem({
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
-          className={`flex w-full items-center justify-between px-4 py-3 min-h-[48px] rounded-lg transition-all duration-200 ${isActive || isOpen
-            ? "bg-[#1e293b] text-white font-semibold shadow-sm"
-            : "text-slate-400 hover:text-white hover:bg-[#1e293b]/50"
-            }`}
+          className={`flex w-full items-center justify-between px-4 py-3 min-h-[48px] rounded-lg transition-all duration-200 ${
+            isActive || isOpen
+              ? "bg-[#1e293b] text-white font-semibold shadow-sm"
+              : "text-slate-400 hover:text-white hover:bg-[#1e293b]/50"
+          }`}
         >
           <div className="flex items-center gap-3">
             <Icon
@@ -110,10 +112,11 @@ function SidebarItem({
                   key={sub.href}
                   href={sub.href}
                   onClick={onNavClick}
-                  className={`flex items-center pl-12 pr-4 py-2.5 text-sm transition-colors rounded-lg ${isSubActive
-                    ? "text-white font-medium bg-[#1e293b]/50"
-                    : "text-slate-400 hover:text-white hover:bg-[#1e293b]/30"
-                    }`}
+                  className={`flex items-center pl-12 pr-4 py-2.5 text-sm transition-colors rounded-lg ${
+                    isSubActive
+                      ? "text-white font-medium bg-[#1e293b]/50"
+                      : "text-slate-400 hover:text-white hover:bg-[#1e293b]/30"
+                  }`}
                 >
                   <span
                     className={`w-1.5 h-1.5 rounded-full mr-3 shrink-0 ${isSubActive ? "bg-white" : "bg-transparent"}`}
@@ -132,10 +135,11 @@ function SidebarItem({
     <Link
       href={item.href}
       onClick={onNavClick}
-      className={`flex items-center gap-3 px-4 py-3 min-h-[48px] rounded-lg transition-all duration-200 ${isActive
-        ? "bg-[#1e293b] text-white font-semibold shadow-sm"
-        : "text-slate-400 hover:text-white hover:bg-[#1e293b]/50"
-        }`}
+      className={`flex items-center gap-3 px-4 py-3 min-h-[48px] rounded-lg transition-all duration-200 ${
+        isActive
+          ? "bg-[#1e293b] text-white font-semibold shadow-sm"
+          : "text-slate-400 hover:text-white hover:bg-[#1e293b]/50"
+      }`}
     >
       <Icon
         size={20}
@@ -147,17 +151,14 @@ function SidebarItem({
   );
 }
 
-export default function DashboardSidebar({
-  onNavClick,
-}: DashboardSidebarProps) {
+export default function AdminSidebar({ onNavClick }: AdminSidebarProps) {
   const pathname = usePathname();
   const { data: session } = useSession();
   const user = session?.user;
   const [isLogoutOpen, setIsLogoutOpen] = useState(false);
 
-  // Real or fallback user details
-  const userRole = (user as { role?: string })?.role || "No Role";
-  const userName = user?.name || "No user";
+  const userRole = (user as { role?: string })?.role || "Admin";
+  const userName = user?.name || "Admin User";
 
   const userInitials = userName
     .split(" ")
@@ -175,9 +176,17 @@ export default function DashboardSidebar({
   return (
     <>
       <aside className="w-full h-full flex flex-col bg-[#0f172a] text-white shadow-[1px_0_10px_rgba(0,0,0,0.1)] relative z-10">
+        {/* Admin Badge */}
+        <div className="px-6 pt-6 pb-4">
+          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30">
+            <Shield size={18} className="text-amber-400" />
+            <span className="text-sm font-semibold text-amber-300">Admin Panel</span>
+          </div>
+        </div>
+
         {/* Navigation Links */}
-        <nav className="flex-1 px-4 py-8 space-y-2 overflow-y-auto">
-          {sidebarNavItems.map((item) => (
+        <nav className="flex-1 px-4 py-4 space-y-2 overflow-y-auto">
+          {adminNavItems.map((item) => (
             <SidebarItem
               key={item.href}
               item={item}
@@ -203,7 +212,7 @@ export default function DashboardSidebar({
               <span className="text-white text-sm font-medium leading-none mb-1">
                 {userName}
               </span>
-              <span className="text-slate-400 text-xs">{userRole}</span>
+              <span className="text-amber-400 text-xs font-medium">{userRole}</span>
             </div>
           </div>
 
@@ -228,7 +237,8 @@ export default function DashboardSidebar({
               Confirm Logout
             </DialogTitle>
             <DialogDescription className="text-center text-sm text-slate-500 dark:text-slate-400">
-              Are you sure you want to log out of your account? You will need to log back in to access your dashboard.
+              Are you sure you want to log out of the admin panel? You will need
+              to log back in to access this area.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="mt-6 flex flex-col sm:flex-row gap-2 sm:justify-center">

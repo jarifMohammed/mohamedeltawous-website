@@ -163,6 +163,7 @@ import { usePathname } from "next/navigation";
 import { Globe, Menu, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { useSession } from "next-auth/react";
 const MotionLink = motion(Link);
 import {
   Select,
@@ -261,6 +262,7 @@ function applyGoogleTranslate(languageCode: LanguageCode, retries = 12) {
 
 export default function Navbar() {
   const pathname = usePathname();
+  const { data: session } = useSession();
 
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -471,12 +473,14 @@ export default function Navbar() {
           </div>
 
           {/* CTA Button */}
-          <Link
-            href="/login"
-            className="hidden sm:inline-flex rounded-lg text-[#0f172a] border-[#0f172a] border px-5 py-2.5 text-[14px] md:px-6 md:py-3 md:text-[15px] font-semibold transition hover:opacity-90 shadow-lg shadow-gray-200"
-          >
-            Login
-          </Link>
+          {!session && (
+            <Link
+              href="/login"
+              className="hidden sm:inline-flex rounded-lg text-[#0f172a] border-[#0f172a] border px-5 py-2.5 text-[14px] md:px-6 md:py-3 md:text-[15px] font-semibold transition hover:opacity-90 shadow-lg shadow-gray-200"
+            >
+              Login
+            </Link>
+          )}
 
        <MotionLink
       href="/dashboard/new-scenario"
