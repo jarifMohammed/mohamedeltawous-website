@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Mail, Lock, User, Eye, EyeOff, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { signIn } from "next-auth/react";
+import { signIn, getSession } from "next-auth/react";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -79,7 +79,13 @@ export default function AnimatedAuth() {
 
       toast.success("Login successful!");
 
-      router.push("/dashboard/new-scenario");
+      const session = await getSession();
+      const role = (session?.user as { role?: string })?.role;
+      if (role === "admin") {
+        router.push("/admin");
+      } else {
+        router.push("/dashboard/new-scenario");
+      }
     } catch (error) {
       console.error(error);
       toast.error("Something went wrong!");

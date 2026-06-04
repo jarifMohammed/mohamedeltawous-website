@@ -26,7 +26,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${sora.variable} antialiased`}>
         <MainProviders>
-          <Provider> {children} </Provider>
+          <Provider>{children}</Provider>
         </MainProviders>
         <Toaster position="top-right" closeButton />
       </body>
