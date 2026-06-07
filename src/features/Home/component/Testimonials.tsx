@@ -46,7 +46,7 @@ export default function TestimonialGrid() {
             <div className="relative">
               <div className="absolute -inset-3 rounded-2xl bg-primary/20 blur-xl" />
 
-              <Link href="https://www.trustpilot.com/">
+              <Link href="https://www.trustpilot.com/" target="_blank">
                 <div className="relative rounded-2xl overflow-hidden shadow-xl border border-gray-100 bg-white">
                   <Image
                     src="/images/trust.jpeg"
