@@ -367,7 +367,7 @@ export default function WhoShouldUse() {
 
       <div className="container mx-auto px-4 md:px-6 relative z-10">
         <div className="text-center max-w-3xl mx-auto">
-          <h2 className="text-[34px] sm:text-[42px] md:text-[48px] font-extrabold text-white tracking-tight leading-[1.15] text-nowrap">
+          <h2 className="text-[24px] sm:text-[42px] md:text-[48px] font-extrabold text-white tracking-tight leading-[1.15] text-nowrap">
             Who should use Second Sight?
           </h2>
           <p className="mt-4 text-base md:text-lg text-[#ced1d6] font-medium leading-relaxed">

@@ -536,8 +536,8 @@ export default function Banner() {
           transition={{ duration: 0.6 }}
         >
           {/* ── LEFT COLUMN ── */}
-          <div className="flex flex-col items-start ">
-            <h1 className="text-[38px] sm:text-5xl lg:text-[58px] font-extrabold leading-[1.1] tracking-tight text-[#0F172A] text-center">
+          <div className="flex flex-col items-center ">
+            <h1 className="text-[28px] sm:text-5xl lg:text-[58px] font-extrabold leading-[1.1] tracking-tight text-[#0F172A] text-center">
               AI-Powered Scenario
               <br />
               Planning Platform.
@@ -548,7 +548,7 @@ export default function Banner() {
               Professional Scenario Plans with AI
             </p>
 
-            <div className="mt-9 ml-28">
+            <div className="mt-9 ">
               <Link
                 href="/dashboard/new-scenario"
                 className="inline-flex h-[52px] items-center justify-center rounded-xl bg-[#0F172A] px-8 text-[15px] font-bold text-white transition hover:opacity-90 shadow-xl shadow-blue-900/10 cursor-pointer"
@@ -557,7 +557,7 @@ export default function Banner() {
               </Link>
             </div>
 
-            <div className="mt-8 flex items-center gap-3 ml-28">
+            <div className="mt-8 flex items-center gap-3 ">
               <div className="flex -space-x-2.5">
                 {["bg-[#F472B6]", "bg-[#60A5FA]", "bg-[#34D399]"].map(
                   (color, i) => (
@@ -734,14 +734,14 @@ export default function Banner() {
       </div>
 
       {/* DASHBOARD — Scenario Intelligence Matrix */}
-      <div className="mx-auto mt-24 rounded-[32px] font-sora relative z-20">
-        <div className="rounded-[31px] border border-[#111827]/20 shadow-[0_32px_80px_rgba(15,23,42,0.12)] bg-white/80 overflow-hidden container mx-auto ">
-          <div className="p-5 md:p-10 z-50">
-            <div className="rounded-[24px] bg-secondary p-6 md:p-8">
+      <div className="mx-auto mt-24 rounded-[32px] container font-sora relative z-20">
+        <div className="rounded-[31px] border border-[#111827]/20 shadow-[0_32px_80px_rgba(15,23,42,0.12)] bg-white/80  ">
+          <div className="p-5 md:p-10 z-50 ">
+            <div className="rounded-[24px] bg-secondary md:p-8 ">
 
               {/* Header row */}
-              <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
-                <h3 className="text-[24px] font-extrabold text-primary">
+              <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between ">
+                <h3 className="text-[24px] p-4 font-extrabold text-primary">
                   Scenario Intelligence Matrix
                 </h3>
 
@@ -764,7 +764,7 @@ export default function Banner() {
               </div>
 
               {/* ── METRIX CONTAINER WITH X & Y AXIS LINES ── */}
-              <div className="relative mt-12 p-4">
+              <div className="relative p-4">
 
                 {/* Y-Axis Line (Vertical Line with Arrows) */}
                 <div className="absolute top-0 bottom-0 left-1/2 w-[2px] bg-slate-300 -translate-x-1/2 hidden md:block pointer-events-none">
