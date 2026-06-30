@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { Suspense, useState } from "react";
 import { motion } from "framer-motion";
 import { Mail, Lock, User, Eye, EyeOff, Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { signIn, getSession } from "next-auth/react";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
@@ -34,7 +34,7 @@ const registerSchema = z
 type LoginFormType = z.infer<typeof loginSchema>;
 type RegisterFormType = z.infer<typeof registerSchema>;
 
-export default function AnimatedAuth() {
+function AnimatedAuth() {
   const [isLogin, setIsLogin] = useState(true);
 
   // Login states
@@ -47,6 +47,12 @@ export default function AnimatedAuth() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl");
+  const safeCallbackUrl =
+    callbackUrl?.startsWith("/") && !callbackUrl.startsWith("//")
+      ? callbackUrl
+      : null;
 
   const toggleForm = () => setIsLogin(!isLogin);
 
@@ -81,7 +87,9 @@ export default function AnimatedAuth() {
 
       const session = await getSession();
       const role = (session?.user as { role?: string })?.role;
-      if (role === "admin") {
+      if (safeCallbackUrl) {
+        router.push(safeCallbackUrl);
+      } else if (role === "admin") {
         router.push("/admin");
       } else {
         router.push("/dashboard/new-scenario");
@@ -147,7 +155,7 @@ export default function AnimatedAuth() {
         return;
       }
 
-      router.push("/");
+      router.push(safeCallbackUrl || "/dashboard/new-scenario");
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Registration failed",
@@ -373,6 +381,20 @@ export default function AnimatedAuth() {
         </div>
       </div>
     </section>
+  );
+}
+
+export default function AnimatedAuthPage() {
+  return (
+    <Suspense
+      fallback={
+        <section className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
+          <Loader2 className="h-6 w-6 animate-spin text-slate-700" />
+        </section>
+      }
+    >
+      <AnimatedAuth />
+    </Suspense>
   );
 }
 

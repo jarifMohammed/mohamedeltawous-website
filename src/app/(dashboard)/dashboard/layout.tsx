@@ -1,8 +1,10 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import DashboardNavbar from "@/components/shared/DashboardNavbar";
 import DashboardSidebar from "@/components/shared/DashboardSidebar";
+import { usePathname, useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 export default function DashboardRootLayout({
   children,
@@ -10,6 +12,23 @@ export default function DashboardRootLayout({
   children: React.ReactNode;
 }>) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { status } = useSession();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.replace(`/login?callbackUrl=${encodeURIComponent(pathname)}`);
+    }
+  }, [pathname, router, status]);
+
+  if (status === "loading" || status === "unauthenticated") {
+    return (
+      <div className="flex h-screen items-center justify-center bg-[#EEF7FC] text-sm font-semibold text-slate-700 dark:bg-background dark:text-slate-200">
+        Checking your session...
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-[#EEF7FC] dark:bg-background">
