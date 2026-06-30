@@ -17,6 +17,36 @@ import {
   ReportResponse,
 } from "../types/newScenario.types";
 
+export type InviteInfo = {
+  _id: string;
+  ownerId: string;
+  inviteEmail: string;
+  token: string;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+export type InviteResponse = {
+  success: boolean;
+  message: string;
+  statusCode?: number;
+  data: InviteInfo;
+};
+
+export const sendScenarioInvite = async (
+  email: string,
+): Promise<InviteResponse> => {
+  const response = await axiosInstance.post("/invite/send", { email });
+  return response.data;
+};
+
+export const getScenarioInvite = async (
+  token: string,
+): Promise<InviteResponse> => {
+  const response = await axiosInstance.get(`/invite/invite/${token}`);
+  return response.data;
+};
+
 // POST /workshop/classify
 
 export const classifyWorkshop = async (

@@ -313,7 +313,7 @@ const ScenarioMatrixView: React.FC = () => {
 
   if (!windtunnelData) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-12 bg-white rounded-3xl border border-slate-100 shadow-sm">
+      <div className="flex min-h-[60vh] flex-col items-center justify-center rounded-3xl border border-slate-100 bg-white p-6 text-center shadow-sm sm:p-12">
         <div className="w-20 h-20 rounded-3xl bg-slate-50 flex items-center justify-center mb-6">
           <HelpCircle className="w-10 h-10 text-slate-300" />
         </div>
@@ -326,7 +326,7 @@ const ScenarioMatrixView: React.FC = () => {
         </p>
         <button
           onClick={() => setStep(4)}
-          className="px-8 py-3 bg-[#0F172A] text-white rounded-xl font-bold flex items-center gap-2 hover:shadow-lg transition-all active:scale-95"
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#0F172A] px-8 py-3 font-bold text-white transition-all hover:shadow-lg active:scale-95 sm:w-auto"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Discovery
@@ -380,42 +380,42 @@ const ScenarioMatrixView: React.FC = () => {
   });
 
   return (
-    <div className="w-full max-w-[1600px] mx-auto pb-20 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+    <div className="mx-auto w-full max-w-[1600px] pb-10 animate-in fade-in slide-in-from-bottom-4 duration-1000 sm:pb-20">
       {/* Header Area */}
-      <div className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6 px-4">
+      <div className="mb-8 flex flex-col justify-between gap-5 px-1 sm:mb-12 sm:px-4 md:flex-row md:items-end md:gap-6">
         <div>
           <div className="flex items-center gap-3 mb-3">
             <div className="w-10 h-10 rounded-xl bg-[#0F172A] flex items-center justify-center shadow-lg shadow-blue-900/20">
               <Trophy className="w-5 h-5 text-white" />
             </div>
-            <span className="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em]">
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 sm:text-[11px] sm:tracking-[0.3em]">
               Final Strategic Conclusion
             </span>
           </div>
-          <h1 className="text-4xl font-black text-[#0F172A] tracking-tighter">
+          <h1 className="text-2xl font-black tracking-tighter text-[#0F172A] sm:text-4xl">
             Strategic Wind-tunnelling
           </h1>
-          <p className="text-slate-500 mt-2 font-medium max-w-2xl">
+          <p className="mt-2 max-w-2xl text-sm font-medium text-slate-500 sm:text-base">
             Stress-testing your strategic options for{" "}
             <span className="text-blue-600 font-bold">{company.name}</span>{" "}
             across all plausible futures.
           </p>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-4">
           <button
             onClick={() => setStep(4)}
-            className="px-6 py-4 bg-white border border-slate-200 text-[#0F172A] rounded-2xl font-black text-sm uppercase tracking-widest flex items-center gap-2 hover:bg-slate-50 transition-all active:scale-95 shadow-sm"
+            className="flex w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-6 py-4 text-sm font-black uppercase tracking-widest text-[#0F172A] shadow-sm transition-all hover:bg-slate-50 active:scale-95 sm:w-auto"
           >
             <ChevronLeft className="w-5 h-5" />
             Back
           </button>
 
-          <div className="flex flex-col items-end gap-2 text-right">
+          <div className="flex flex-col gap-2 text-left sm:items-end sm:text-right">
             <button
               onClick={handleExport}
               disabled={isExporting}
-              className="px-6 py-4 bg-[#0F172A] text-white rounded-2xl font-black text-sm flex items-center gap-3 hover:shadow-2xl hover:-translate-y-1 transition-all active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed shadow-xl shadow-blue-900/20 group cursor-pointer"
+              className="group flex w-full cursor-pointer items-center justify-center gap-3 rounded-2xl bg-[#0F172A] px-6 py-4 text-sm font-black text-white shadow-xl shadow-blue-900/20 transition-all hover:-translate-y-1 hover:shadow-2xl active:scale-95 disabled:cursor-not-allowed disabled:opacity-70 sm:w-auto"
             >
               {isExporting ? (
                 <>
@@ -430,7 +430,7 @@ const ScenarioMatrixView: React.FC = () => {
               )}
             </button>
             {exportError && (
-              <p className="text-xs font-bold text-rose-500 max-w-[260px] text-right">
+              <p className="max-w-[260px] text-xs font-bold text-rose-500 sm:text-right">
                 {exportError}
               </p>
             )}
@@ -438,24 +438,24 @@ const ScenarioMatrixView: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-8 px-4">
+      <div className="grid grid-cols-1 gap-5 px-1 sm:gap-8 sm:px-4">
         {/* RECOMMENDED OPTION FEATURE */}
-        <div className="relative overflow-hidden bg-gradient-to-br from-[#0F172A] to-[#1E293B] rounded-[3rem] p-12 text-white shadow-2xl shadow-blue-900/20 group">
+        <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0F172A] to-[#1E293B] p-6 text-white shadow-2xl shadow-blue-900/20 sm:rounded-[3rem] sm:p-12">
           <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl pointer-events-none" />
 
-          <div className="relative z-10 flex flex-col lg:flex-row gap-12 items-center">
+          <div className="relative z-10 flex flex-col items-center gap-8 lg:flex-row lg:gap-12">
             {/* <div className="shrink-0 w-24 h-24 rounded-3xl bg-blue-500/20 border border-blue-400/30 flex items-center justify-center shadow-inner">
               <ShieldCheck className="w-12 h-12 text-blue-400" />
             </div> */}
 
             <div className="flex-1 text-center lg:text-left">
-              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-400 mb-4 block">
+              <span className="mb-4 block text-[10px] font-black uppercase tracking-[0.25em] text-blue-400 sm:tracking-[0.4em]">
                 Executive recommendation
               </span>
-              <h2 className="text-3xl font-black mb-4 tracking-tighter leading-tight">
+              <h2 className="mb-4 text-2xl font-black leading-tight tracking-tighter sm:text-3xl">
                 {windtunnelData.recommendedOption}
               </h2>
-              <p className="text-slate-300 text-lg font-medium leading-relaxed max-w-4xl italic">
+              <p className="max-w-4xl text-sm font-medium italic leading-relaxed text-slate-300 sm:text-lg">
                 &quot;{windtunnelData.strategicConclusion}&quot;
               </p>
             </div>
@@ -463,8 +463,8 @@ const ScenarioMatrixView: React.FC = () => {
         </div>
 
         {/* WIND TUNNEL MATRIX */}
-        <div className="bg-white rounded-[3rem] border border-slate-100 shadow-sm overflow-hidden flex flex-col">
-          <div className="p-10 border-b border-slate-50 flex items-center justify-between">
+        <div className="flex flex-col overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-sm sm:rounded-[3rem]">
+          <div className="flex flex-col gap-4 border-b border-slate-50 p-5 sm:p-10 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex items-center gap-4">
               <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
                 <LayoutDashboard className="w-5 h-5 text-blue-600" />
@@ -478,7 +478,7 @@ const ScenarioMatrixView: React.FC = () => {
                 </p>
               </div>
             </div>
-            <div className="flex gap-4">
+            <div className="grid grid-cols-2 gap-3 sm:flex sm:gap-4">
               {["Excellent", "Good", "Moderate", "Poor"].map((r) => (
                 <div key={r} className="flex items-center gap-2">
                   <div
@@ -496,7 +496,7 @@ const ScenarioMatrixView: React.FC = () => {
             <table className="w-full border-collapse">
               <thead>
                 <tr className="bg-slate-50/50">
-                  <th className="p-10 text-left border-r border-slate-100 min-w-[300px]">
+                  <th className="min-w-[240px] border-r border-slate-100 p-5 text-left sm:min-w-[300px] sm:p-10">
                     <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">
                       Strategic Options
                     </span>
@@ -504,7 +504,7 @@ const ScenarioMatrixView: React.FC = () => {
                   {scenarioLabels.map((s, idx) => (
                     <th
                       key={idx}
-                      className="p-10 text-center border-r border-slate-100 min-w-[200px]"
+                      className="min-w-[180px] border-r border-slate-100 p-5 text-center sm:min-w-[200px] sm:p-10"
                     >
                       <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest block mb-2">
                         Scenario {idx + 1}
@@ -525,7 +525,7 @@ const ScenarioMatrixView: React.FC = () => {
                     key={optIdx}
                     className="border-t border-slate-50 group hover:bg-slate-50/30 transition-colors"
                   >
-                    <td className="p-10 border-r border-slate-100">
+                    <td className="border-r border-slate-100 p-5 sm:p-10">
                       <p className="text-sm font-bold text-slate-700 leading-relaxed">
                         {option}
                       </p>
@@ -545,7 +545,7 @@ const ScenarioMatrixView: React.FC = () => {
                         return (
                           <td
                             key={sceIdx}
-                            className="p-6 border-r border-slate-100 text-center transition-all duration-300"
+                            className="border-r border-slate-100 p-4 text-center transition-all duration-300 sm:p-6"
                           >
                             <div className="flex flex-col items-center gap-4">
                               <span
@@ -593,9 +593,9 @@ const ScenarioMatrixView: React.FC = () => {
         </div>
 
         {/* ROBUST STRATEGIC MOVES */}
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 gap-5 sm:gap-8 xl:grid-cols-3">
           {/* No Regret Moves */}
-          <div className="bg-white rounded-[2.5rem] border border-slate-100 p-10 flex flex-col shadow-sm hover:shadow-xl transition-all duration-500 group">
+          <div className="group flex flex-col rounded-3xl border border-slate-100 bg-white p-6 shadow-sm transition-all duration-500 hover:shadow-xl sm:rounded-[2.5rem] sm:p-10">
             <div className="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
               <CheckCircle2 className="w-7 h-7 text-emerald-600" />
             </div>
@@ -623,7 +623,7 @@ const ScenarioMatrixView: React.FC = () => {
           </div>
 
           {/* Keep-Open Options */}
-          <div className="bg-white rounded-[2.5rem] border border-slate-100 p-10 flex flex-col shadow-sm hover:shadow-xl transition-all duration-500 group">
+          <div className="group flex flex-col rounded-3xl border border-slate-100 bg-white p-6 shadow-sm transition-all duration-500 hover:shadow-xl sm:rounded-[2.5rem] sm:p-10">
             <div className="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
               <Eye className="w-7 h-7 text-blue-600" />
             </div>
@@ -651,7 +651,7 @@ const ScenarioMatrixView: React.FC = () => {
           </div>
 
           {/* Defer Moves */}
-          <div className="bg-white rounded-[2.5rem] border border-slate-100 p-10 flex flex-col shadow-sm hover:shadow-xl transition-all duration-500 group">
+          <div className="group flex flex-col rounded-3xl border border-slate-100 bg-white p-6 shadow-sm transition-all duration-500 hover:shadow-xl sm:rounded-[2.5rem] sm:p-10">
             <div className="w-14 h-14 rounded-2xl bg-rose-50 flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
               <Clock className="w-7 h-7 text-rose-600" />
             </div>
@@ -682,19 +682,19 @@ const ScenarioMatrixView: React.FC = () => {
 
       {/* EXPORT MODAL & STREAMING VIEW */}
       {(isStreaming || streamedMarkdown) && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-xl animate-in fade-in duration-500">
-          <div className="bg-white rounded-[3rem] p-8 md:p-12 max-w-4xl w-full h-[85vh] shadow-2xl border border-white/20 flex flex-col space-y-8 animate-in zoom-in-95 duration-500">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-900/60 p-3 backdrop-blur-xl animate-in fade-in duration-500 sm:p-6">
+          <div className="flex h-[90vh] w-full max-w-4xl flex-col space-y-6 rounded-3xl border border-white/20 bg-white p-5 shadow-2xl animate-in zoom-in-95 duration-500 sm:h-[85vh] sm:space-y-8 sm:rounded-[3rem] sm:p-8 md:p-12">
             {/* Header */}
-            <div className="flex items-center justify-between shrink-0">
-              <div className="flex items-center gap-6">
-                <div className="relative w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
+            <div className="flex shrink-0 items-center justify-between gap-3">
+              <div className="flex min-w-0 items-center gap-3 sm:gap-6">
+                <div className="relative hidden h-16 w-16 items-center justify-center rounded-2xl bg-blue-600 shadow-lg sm:flex">
                   <Loader2 className="w-8 h-8 text-white animate-spin" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-black text-[#0F172A] tracking-tighter">
+                  <h3 className="text-xl font-black tracking-tighter text-[#0F172A] sm:text-2xl">
                     {isStreaming ? "Drafting Report..." : "Generation Complete"}
                   </h3>
-                  <div className="flex items-center gap-2 text-blue-600 mt-1">
+                  <div className="mt-1 flex flex-wrap items-center gap-2 text-blue-600">
                     <span className="text-[10px] font-black uppercase tracking-widest">
                       AI Strategic Synthesis
                     </span>
@@ -713,7 +713,7 @@ const ScenarioMatrixView: React.FC = () => {
                     setStreamedMarkdown("");
                     setIsStreaming(false);
                   }}
-                  className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 hover:text-rose-500 hover:bg-rose-50 transition-all active:scale-95 group"
+                  className="group flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-slate-50 text-slate-400 transition-all hover:bg-rose-50 hover:text-rose-500 active:scale-95 sm:h-12 sm:w-12"
                 >
                   <X className="w-6 h-6 group-hover:rotate-90 transition-transform duration-300" />
                 </button>
@@ -723,7 +723,7 @@ const ScenarioMatrixView: React.FC = () => {
             {/* Markdown Stream Content */}
             <div
               ref={scrollRef}
-              className="flex-1 overflow-y-auto px-4 py-2 custom-scrollbar space-y-6"
+              className="custom-scrollbar flex-1 space-y-6 overflow-y-auto px-1 py-2 sm:px-4"
             >
               <div className="prose prose-slate prose-sm md:prose-base max-w-none prose-headings:font-black prose-headings:tracking-tighter prose-headings:text-slate-900 prose-p:text-slate-600 prose-p:leading-relaxed prose-strong:text-blue-600 prose-strong:font-bold prose-ul:list-none prose-ul:pl-0 prose-li:mb-4">
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>
@@ -732,10 +732,10 @@ const ScenarioMatrixView: React.FC = () => {
                 </ReactMarkdown>
                 {/* Download PDF Button - Appears after streaming is complete */}
                 {generationComplete && (
-                  <div className="mt-8 p-8 border-t border-slate-100 flex justify-center animate-in fade-in slide-in-from-bottom-4 duration-700">
+                  <div className="mt-8 flex justify-center border-t border-slate-100 p-4 animate-in fade-in slide-in-from-bottom-4 duration-700 sm:p-8">
                     <button
                       onClick={handleDownloadPdf}
-                      className="group relative flex items-center gap-3 px-8 py-4 bg-blue-600 text-white rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-blue-700 transition-all active:scale-95 shadow-lg shadow-blue-200 cursor-pointer"
+                      className="group relative flex w-full cursor-pointer items-center justify-center gap-3 rounded-2xl bg-blue-600 px-6 py-4 text-xs font-black uppercase tracking-widest text-white shadow-lg shadow-blue-200 transition-all hover:bg-blue-700 active:scale-95 sm:w-auto sm:px-8"
                     >
                       <Download className="w-5 h-5 group-hover:bounce transition-all" />
                       Download Strategic PDF Report
@@ -750,7 +750,7 @@ const ScenarioMatrixView: React.FC = () => {
             </div>
 
             {/* Footer Status */}
-            <div className="pt-6 border-t border-slate-100 flex flex-col md:flex-row items-center justify-between gap-4 shrink-0">
+            <div className="flex shrink-0 flex-col items-center justify-between gap-4 border-t border-slate-100 pt-6 md:flex-row">
               <div className="flex items-center gap-3">
                 <div className="h-1.5 w-32 bg-slate-100 rounded-full overflow-hidden">
                   <div
@@ -795,11 +795,11 @@ const ScenarioMatrixView: React.FC = () => {
           />
 
           {/* Modal Content */}
-          <div className="relative bg-white w-full max-w-xl max-h-[85vh] rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 fade-in duration-500 flex flex-col border border-slate-100">
+          <div className="relative flex max-h-[85vh] w-full max-w-xl flex-col overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-2xl animate-in zoom-in-95 fade-in duration-500 sm:rounded-[2.5rem]">
             {/* Modal Header */}
-            <div className="px-8 py-8 border-b border-slate-50 flex items-center justify-between bg-white/80 sticky top-0 z-10">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center shadow-inner border border-blue-100">
+            <div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-slate-50 bg-white/80 px-5 py-5 sm:px-8 sm:py-8">
+              <div className="flex min-w-0 items-center gap-3 sm:gap-4">
+                <div className="hidden h-12 w-12 items-center justify-center rounded-2xl border border-blue-100 bg-blue-50 shadow-inner sm:flex">
                   <LayoutDashboard className="w-6 h-6 text-blue-600" />
                 </div>
                 <div>
@@ -820,7 +820,7 @@ const ScenarioMatrixView: React.FC = () => {
             </div>
 
             {/* Modal Body */}
-            <div className="px-8 py-8 overflow-y-auto flex-1 custom-scrollbar space-y-8">
+            <div className="custom-scrollbar flex-1 space-y-8 overflow-y-auto px-5 py-6 sm:px-8 sm:py-8">
               {/* Context Header */}
               <div className="space-y-4">
                 <div className="flex flex-wrap gap-2">
@@ -852,11 +852,11 @@ const ScenarioMatrixView: React.FC = () => {
                     Detailed Strategic Reasoning
                   </h5>
                 </div>
-                <div className="p-8 bg-slate-50 rounded-3xl border border-slate-100 italic relative overflow-hidden">
+                <div className="relative overflow-hidden rounded-3xl border border-slate-100 bg-slate-50 p-5 italic sm:p-8">
                   <div className="absolute top-0 right-0 p-4 opacity-5">
                     <ShieldCheck className="w-16 h-16 text-[#0F172A]" />
                   </div>
-                  <p className="text-slate-600 text-base leading-relaxed font-medium text-justify relative z-10">
+                  <p className="relative z-10 text-left text-sm font-medium leading-relaxed text-slate-600 sm:text-base sm:text-justify">
                     {matrixModal.reasoning}
                   </p>
                 </div>
@@ -864,7 +864,7 @@ const ScenarioMatrixView: React.FC = () => {
             </div>
 
             {/* Modal Footer */}
-            <div className="px-8 py-6 bg-slate-50/50 border-t border-slate-50 flex justify-end">
+            <div className="flex justify-end border-t border-slate-50 bg-slate-50/50 px-5 py-5 sm:px-8 sm:py-6">
               {/* <button
                 onClick={closeMatrixModal}
                 className="px-8 py-3 bg-[#0F172A] text-white rounded-xl font-bold text-sm hover:shadow-2xl transition-all active:scale-95 cursor-pointer shadow-lg shadow-blue-900/10"

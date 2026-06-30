@@ -6,6 +6,8 @@ import {
   generateScenarios,
   postWindtunnel,
   exportReport,
+  sendScenarioInvite,
+  InviteResponse,
 } from "../api/newScenario.api";
 import {
   AxesPayload,
@@ -27,6 +29,14 @@ import {
 export const useClassifyWorkshop = () => {
   return useMutation<ClassifyResponse, Error, ClassifyPayload>({
     mutationFn: (data: ClassifyPayload) => classifyWorkshop(data),
+  });
+};
+
+// POST /invite/send
+
+export const useSendScenarioInvite = () => {
+  return useMutation<InviteResponse, Error, string>({
+    mutationFn: (email: string) => sendScenarioInvite(email),
   });
 };
 

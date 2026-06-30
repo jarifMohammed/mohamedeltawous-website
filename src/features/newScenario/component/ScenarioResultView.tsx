@@ -358,7 +358,7 @@ const ScenarioResultView: React.FC = () => {
   ];
 
   return (
-    <div className="w-full max-w-[1600px] mx-auto pb-20 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+    <div className="mx-auto w-full max-w-[1600px] pb-10 animate-in fade-in slide-in-from-bottom-4 duration-1000 sm:pb-20">
       <DataMismatchModal
         isOpen={isMismatch}
         variant={mismatchVariant}
@@ -383,30 +383,30 @@ const ScenarioResultView: React.FC = () => {
            CASE 1: STRATEGIC MAPPING (Axes Confirmation)
            ========================================== */
         <div key="mapping-view">
-          <div className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6 px-4">
+          <div className="mb-8 flex flex-col justify-between gap-5 px-1 sm:mb-12 sm:px-4 md:flex-row md:items-end md:gap-6">
             <div>
-              <div className="flex items-center gap-3 mb-3">
+              <div className="mb-3 flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shadow-sm">
                   <Target className="w-5 h-5 text-blue-600" />
                 </div>
-                <span className="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em]">
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 sm:text-[11px] sm:tracking-[0.3em]">
                   Strategic Mapping Phase
                 </span>
               </div>
-              <h1 className="text-4xl font-black text-[#0F172A] tracking-tighter">
+              <h1 className="text-2xl font-black tracking-tighter text-[#0F172A] sm:text-4xl">
                 Scenario Framework Mapping
               </h1>
-              <p className="text-slate-500 mt-2 font-medium max-w-2xl">
+              <p className="mt-2 max-w-2xl text-sm font-medium text-slate-500 sm:text-base">
                 Confirm your strategic axes for{" "}
                 <span className="text-blue-600 font-bold">{company.name}</span>{" "}
                 before generating plausible futures.
               </p>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
               <button
                 onClick={() => setStep(3)}
-                className="px-6 py-4 bg-white border border-slate-200 text-[#0F172A] rounded-2xl font-black text-sm uppercase tracking-widest flex items-center gap-2 hover:bg-slate-50 transition-all active:scale-95 shadow-sm"
+                className="flex w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-6 py-4 text-sm font-black uppercase tracking-widest text-[#0F172A] shadow-sm transition-all hover:bg-slate-50 active:scale-95 sm:w-auto"
               >
                 <ChevronLeft className="w-5 h-5" />
                 Back
@@ -414,7 +414,7 @@ const ScenarioResultView: React.FC = () => {
 
               <button
                 onClick={handleRetry}
-                className="px-8 py-4 rounded-2xl font-black text-sm uppercase tracking-widest flex items-center gap-3 transition-all duration-300 bg-[#0F172A] text-white hover:shadow-2xl hover:-translate-y-1 active:scale-95 cursor-pointer"
+                className="flex w-full cursor-pointer items-center justify-center gap-3 rounded-2xl bg-[#0F172A] px-8 py-4 text-sm font-black uppercase tracking-widest text-white transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl active:scale-95 sm:w-auto"
               >
                 Generate 4 Scenarios
                 <ArrowRight className="w-5 h-5" />
@@ -423,9 +423,9 @@ const ScenarioResultView: React.FC = () => {
           </div>
 
           {/* Main Mapping Content Layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-20 px-4 items-start relative">
+          <div className="relative grid grid-cols-1 items-start gap-6 px-1 sm:px-4 lg:grid-cols-12 lg:gap-10 xl:gap-20">
             {/* Left Column: Info Cards */}
-            <div className="lg:col-span-3 flex flex-col gap-6 max-w-sm">
+            <div className="flex max-w-none flex-col gap-4 sm:gap-6 lg:col-span-3 lg:max-w-sm">
               <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
                 <div className="flex items-center gap-2 mb-3">
                   <div className="w-6 h-6 rounded-lg bg-blue-50 flex items-center justify-center">
@@ -486,12 +486,14 @@ const ScenarioResultView: React.FC = () => {
             </div>
 
             {/* Right Column: Matrix Visualization */}
-            <div className="lg:col-span-9 bg-slate-50/50 py-10 pl-48 pr-12 rounded-[2.5rem] border border-slate-100 flex items-center justify-end min-h-[600px] overflow-visible">
-              <StrategicMatrixChart
-                axisA={axes.axisA}
-                axisB={axes.axisB}
-                scenarios={axes.scenarios}
-              />
+            <div className="overflow-x-auto rounded-3xl border border-slate-100 bg-slate-50/50 p-4 sm:p-6 lg:col-span-9 lg:min-h-[600px] lg:rounded-[2.5rem] lg:py-10 lg:pl-24 lg:pr-8 xl:pl-48 xl:pr-12">
+              <div className="flex min-w-[620px] items-center justify-center lg:justify-end">
+                <StrategicMatrixChart
+                  axisA={axes.axisA}
+                  axisB={axes.axisB}
+                  scenarios={axes.scenarios}
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -500,20 +502,20 @@ const ScenarioResultView: React.FC = () => {
            CASE 2: SCENARIO DISCOVERY BOARD
            ========================================== */
         <div key="discovery-view">
-          <div className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6 px-4">
+          <div className="mb-8 flex flex-col justify-between gap-5 px-1 sm:mb-12 sm:px-4 md:flex-row md:items-end md:gap-6">
             <div>
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shadow-sm">
                   <LayoutGrid className="w-5 h-5 text-blue-600" />
                 </div>
-                <span className="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em]">
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 sm:text-[11px] sm:tracking-[0.3em]">
                   Strategic Output Phase
                 </span>
               </div>
-              <h1 className="text-4xl font-black text-[#0F172A] tracking-tighter">
+              <h1 className="text-2xl font-black tracking-tighter text-[#0F172A] sm:text-4xl">
                 Scenario Discovery Board
               </h1>
-              <p className="text-slate-500 mt-2 font-medium max-w-2xl">
+              <p className="mt-2 max-w-2xl text-sm font-medium text-slate-500 sm:text-base">
                 Four plausible futures for{" "}
                 <span className="text-blue-600 font-bold">{company.name}</span>{" "}
                 based on the critical uncertainties of {axes?.axisA.label} vs{" "}
@@ -521,10 +523,10 @@ const ScenarioResultView: React.FC = () => {
               </p>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
               <button
                 onClick={() => setStep(3)}
-                className="px-6 py-4 bg-white border border-slate-200 text-[#0F172A] rounded-2xl font-black text-sm uppercase tracking-widest flex items-center gap-2 hover:bg-slate-50 transition-all active:scale-95 shadow-sm"
+                className="flex w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-6 py-4 text-sm font-black uppercase tracking-widest text-[#0F172A] shadow-sm transition-all hover:bg-slate-50 active:scale-95 sm:w-auto"
               >
                 <ChevronLeft className="w-5 h-5" />
                 Back
@@ -534,7 +536,7 @@ const ScenarioResultView: React.FC = () => {
                 onClick={handleFinalize}
                 disabled={isFinalizing || scenarios.length === 0}
                 className={`
-              px-8 py-4 rounded-2xl font-black text-sm uppercase tracking-widest flex items-center gap-3 transition-all duration-300
+              flex w-full items-center justify-center gap-3 rounded-2xl px-8 py-4 text-sm font-black uppercase tracking-widest transition-all duration-300 sm:w-auto
               ${
                 isFinalizing || scenarios.length === 0
                   ? "bg-slate-100 text-slate-400 cursor-not-allowed"
@@ -552,7 +554,7 @@ const ScenarioResultView: React.FC = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 px-4 items-start">
+          <div className="grid grid-cols-1 items-start gap-5 px-1 sm:gap-8 sm:px-4 xl:grid-cols-2">
             {scenarios
               .filter((s) => s.name && s.story) // Filter out metadata objects that aren't real scenarios
               .map((s, idx) => {
@@ -562,15 +564,15 @@ const ScenarioResultView: React.FC = () => {
                 return (
                   <div
                     key={s.id}
-                    className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:shadow-slate-200/50 transition-all duration-500 overflow-hidden flex flex-col group"
+                    className="group flex flex-col overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-sm transition-all duration-500 hover:shadow-2xl hover:shadow-slate-200/50 sm:rounded-[2.5rem]"
                   >
                     <div className={`h-2 w-full ${color.bg}`} />
 
-                    <div className="p-10 flex-1 flex flex-col">
-                      <div className="flex justify-between items-start mb-8">
+                    <div className="flex flex-1 flex-col p-5 sm:p-10">
+                      <div className="mb-6 flex items-start justify-between sm:mb-8">
                         <div className="space-y-2">
-                          <div className="flex items-center gap-3">
-                            <h2 className="text-2xl font-black text-[#0F172A] tracking-tight group-hover:text-blue-600 transition-colors">
+                          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                            <h2 className="text-xl font-black tracking-tight text-[#0F172A] transition-colors group-hover:text-blue-600 sm:text-2xl">
                               {s.name}
                             </h2>
                             <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-slate-50 text-slate-400 border border-slate-100 flex items-center gap-1.5 shadow-sm">
@@ -585,7 +587,7 @@ const ScenarioResultView: React.FC = () => {
                       </div>
 
                       {/* Tabs Implementation */}
-                      <div className="flex gap-1 bg-slate-50 p-1.5 rounded-2xl mb-8 border border-slate-100/50">
+                      <div className="mb-6 grid grid-cols-1 gap-1 rounded-2xl border border-slate-100/50 bg-slate-50 p-1.5 sm:mb-8 sm:grid-cols-3">
                         {[
                           {
                             id: "narrative",
@@ -605,7 +607,7 @@ const ScenarioResultView: React.FC = () => {
                               setActiveTabs({ ...activeTabs, [s.id]: tab.id })
                             }
                             className={`
-                        flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer
+                        flex items-center justify-center gap-2 rounded-xl py-2.5 text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer
                         ${
                           activeTab === tab.id
                             ? "bg-white text-[#0F172A] shadow-sm border border-slate-200"
@@ -620,11 +622,11 @@ const ScenarioResultView: React.FC = () => {
                       </div>
 
                       {/* Tab Content */}
-                      <div className="flex-1 min-h-[300px] flex flex-col">
+                      <div className="flex min-h-[240px] flex-1 flex-col sm:min-h-[300px]">
                         {activeTab === "narrative" && (
                           <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 flex-1 flex flex-col">
                             <div className="flex-1">
-                              <p className="text-slate-600 text-sm leading-relaxed font-medium whitespace-pre-line text-justify italic border-l-4 border-slate-100 pl-6 py-2">
+                              <p className="whitespace-pre-line border-l-4 border-slate-100 py-2 pl-4 text-left text-sm font-medium italic leading-relaxed text-slate-600 sm:pl-6 sm:text-justify">
                                 {truncateText(s.story || "", 50).truncated}
                               </p>
                             </div>
@@ -644,7 +646,7 @@ const ScenarioResultView: React.FC = () => {
 
                         {activeTab === "implications" && (
                           <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 flex-1 flex flex-col">
-                            <div className="bg-slate-50/50 p-6 rounded-2xl border border-slate-100 flex-1">
+                            <div className="flex-1 rounded-2xl border border-slate-100 bg-slate-50/50 p-4 sm:p-6">
                               <h4 className="text-xs font-black text-[#0F172A] uppercase tracking-widest mb-4">
                                 Strategic Implications
                               </h4>
@@ -714,18 +716,18 @@ const ScenarioResultView: React.FC = () => {
           />
 
           {/* Modal Content */}
-          <div className="relative bg-white w-full max-w-2xl max-h-[90vh] rounded-[2.5rem] shadow-[0_32px_64px_-16px_rgba(15,23,42,0.15)] overflow-hidden animate-in zoom-in-95 fade-in duration-500 flex flex-col border border-slate-100">
+          <div className="relative flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-[0_32px_64px_-16px_rgba(15,23,42,0.15)] animate-in zoom-in-95 fade-in duration-500 sm:rounded-[2.5rem]">
             {/* Modal Header */}
-            <div className="px-8 py-8 border-b border-slate-50 flex items-center justify-between bg-white/80 sticky top-0 z-10">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center shadow-inner border border-blue-100">
+            <div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-slate-50 bg-white/80 px-5 py-5 sm:px-8 sm:py-8">
+              <div className="flex min-w-0 items-center gap-3 sm:gap-4">
+                <div className="hidden h-12 w-12 items-center justify-center rounded-2xl border border-blue-100 bg-blue-50 shadow-inner sm:flex">
                   <Sparkles className="w-6 h-6 text-blue-600" />
                 </div>
                 <div>
                   <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1 block">
                     Scenario Case Study • {modalData.scenarioLetter}
                   </span>
-                  <h3 className="text-2xl font-black text-[#0F172A] tracking-tighter leading-none">
+                  <h3 className="text-xl font-black leading-tight tracking-tighter text-[#0F172A] sm:text-2xl">
                     {modalData.scenario.name}
                   </h3>
                 </div>
@@ -739,7 +741,7 @@ const ScenarioResultView: React.FC = () => {
             </div>
 
             {/* Modal Body */}
-            <div className="px-8 py-8 overflow-y-auto flex-1 custom-scrollbar space-y-10">
+            <div className="custom-scrollbar flex-1 space-y-8 overflow-y-auto px-5 py-6 sm:space-y-10 sm:px-8 sm:py-8">
               {/* SECTION: STORY */}
               <section className="space-y-4">
                 <div className="flex items-center gap-3">
@@ -750,7 +752,7 @@ const ScenarioResultView: React.FC = () => {
                 </div>
                 <div className="relative group">
                   <p
-                    className={`text-slate-600 text-base leading-relaxed font-medium text-justify italic border-l-4 border-slate-100 pl-8 transition-all duration-500 ${!expandedSections["story"] ? "line-clamp-[5]" : ""}`}
+                    className={`border-l-4 border-slate-100 pl-4 text-left text-sm font-medium italic leading-relaxed text-slate-600 transition-all duration-500 sm:pl-8 sm:text-base sm:text-justify ${!expandedSections["story"] ? "line-clamp-[5]" : ""}`}
                   >
                     {modalData.scenario.story}
                   </p>
@@ -787,7 +789,7 @@ const ScenarioResultView: React.FC = () => {
                     Strategic Implications
                   </h4>
                 </div>
-                <div className="bg-slate-50/50 p-8 rounded-3xl border border-slate-100 relative overflow-hidden group">
+                <div className="group relative overflow-hidden rounded-3xl border border-slate-100 bg-slate-50/50 p-5 sm:p-8">
                   <div className="absolute top-0 right-0 p-4 opacity-10">
                     <Target className="w-12 h-12 text-[#0F172A]" />
                   </div>
@@ -845,7 +847,7 @@ const ScenarioResultView: React.FC = () => {
             </div>
 
             {/* Modal Footer */}
-            <div className="px-8 py-6 bg-slate-50/50 border-t border-slate-50 flex justify-between items-center">
+            <div className="flex items-center justify-between border-t border-slate-50 bg-slate-50/50 px-5 py-5 sm:px-8 sm:py-6">
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                 Professional Strategic Analysis
               </span>

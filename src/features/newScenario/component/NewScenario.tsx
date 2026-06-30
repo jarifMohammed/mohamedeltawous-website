@@ -1,11 +1,26 @@
 "use client";
 
 import React, { useEffect, useState, useCallback } from "react";
+import Link from "next/link";
 import { useScenarioContext, ScenarioProvider } from "../store/ScenarioContext";
-import { useClassifyWorkshop, useGenerateAxes } from "../hooks/useNewScenario";
+import {
+  useClassifyWorkshop,
+  useGenerateAxes,
+  useSendScenarioInvite,
+} from "../hooks/useNewScenario";
 import ForceClassificationView from "./ForceClassificationView";
 import ScenarioResultView from "./ScenarioResultView";
 import ScenarioMatrixView from "./ScenarioMatrixView";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import {
   Check,
   Plus,
@@ -19,6 +34,8 @@ import {
   Loader2,
   CheckCircle2,
   LayoutGrid,
+  Mail,
+  AlertTriangle,
 } from "lucide-react";
 
 const PREDEFINED_CATEGORIES = [
@@ -34,6 +51,43 @@ const PREDEFINED_CATEGORIES = [
   "Religion",
   "Geographic",
 ];
+
+type CreditError = {
+  message: string;
+  availableCredits?: number;
+  requiredCredits?: number;
+  sessionId?: string;
+};
+
+type ApiErrorData = {
+  message?: string;
+  availableCredits?: number;
+  requiredCredits?: number;
+  sessionId?: string;
+};
+
+type ApiErrorWithResponse = {
+  response?: {
+    data?: ApiErrorData;
+  };
+};
+
+function getApiErrorData(error: unknown) {
+  if (typeof error === "object" && error !== null && "response" in error) {
+    return (error as ApiErrorWithResponse).response?.data;
+  }
+
+  return undefined;
+}
+
+function isInsufficientCreditsError(data?: ApiErrorData) {
+  return (
+    Boolean(data) &&
+    (data?.message?.toLowerCase().includes("insufficient credits") ||
+      typeof data?.availableCredits === "number" ||
+      typeof data?.requiredCredits === "number")
+  );
+}
 
 function NewScenarioContent() {
   const {
@@ -53,15 +107,21 @@ function NewScenarioContent() {
     setAxesModal,
     axes,
     conversationHistory,
+    isInviteMode,
   } = useScenarioContext();
 
   const { mutateAsync: classifyWorker, isPending: isClassifying } =
     useClassifyWorkshop();
   const { mutateAsync: generateAxes, isPending: isGeneratingAxes } =
     useGenerateAxes();
+  const { mutateAsync: sendInvite, isPending: isSendingInvite } =
+    useSendScenarioInvite();
 
   const [dfError, setDfError] = useState("");
   const [customCatInput, setCustomCatInput] = useState("");
+  const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [creditError, setCreditError] = useState<CreditError | null>(null);
 
   const handleToggleCategory = (cat: string) => {
     const exists = movingFactors.find(
@@ -158,11 +218,67 @@ function NewScenarioContent() {
     { label: "Generate Report", icon: CheckCircle2 },
   ];
 
+  const handleSendInvite = async () => {
+    const email = inviteEmail.trim();
+
+    if (!email) {
+      toast.error("Please enter a guest email.");
+      return;
+    }
+
+    try {
+      await sendInvite(email);
+      toast.success("Invitation sent successfully.");
+      setInviteEmail("");
+      setIsInviteDialogOpen(false);
+    } catch (error: unknown) {
+      const message =
+        typeof error === "object" &&
+        error !== null &&
+        "response" in error &&
+        typeof (error as { response?: { data?: { message?: string } } })
+          .response?.data?.message === "string"
+          ? (error as { response: { data: { message: string } } }).response
+              .data.message
+          : "Failed to send invitation.";
+
+      toast.error(message);
+    }
+  };
+
   return (
-    <section className="bg-slate-50 min-h-screen py-20 px-4 font-sans">
+    <section className="bg-slate-50 min-h-screen px-3 py-6 font-sans sm:px-4 sm:py-10 lg:py-20">
       <div className="max-w-5xl mx-auto">
-        <div className="mb-16">
-          <div className="flex justify-between items-center relative">
+        <div className="mb-8 flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-widest text-slate-400">
+              {isInviteMode ? "Guest invitation" : "Scenario workshop"}
+            </p>
+            <h1 className="mt-1 text-xl font-black text-[#0F172A]">
+              {isInviteMode ? "Complete invited scenario" : "New Scenario"}
+            </h1>
+            {isInviteMode && (
+              <p className="mt-1 text-sm text-slate-500">
+                Invite token verified. Your changes will be submitted with this
+                invitation.
+              </p>
+            )}
+          </div>
+
+          {!isInviteMode && (
+            <button
+              type="button"
+              onClick={() => setIsInviteDialogOpen(true)}
+              className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#0F172A] px-5 text-sm font-bold text-white transition hover:opacity-90 sm:w-auto"
+            >
+              <Mail className="h-4 w-4" />
+              Invite Guest
+            </button>
+          )}
+        </div>
+
+        <div className="mb-10 overflow-x-auto pb-8 sm:mb-16 sm:overflow-visible sm:pb-0">
+          <div className="relative flex min-w-[680px] items-center justify-between sm:min-w-0">
             <div className="absolute top-1/2 left-0 w-full h-0.5 bg-slate-200 -translate-y-1/2 z-0" />
             <div
               className="absolute top-1/2 left-0 h-0.5 bg-[#0F172A] -translate-y-1/2 z-0 transition-all duration-500 ease-in-out"
@@ -211,18 +327,18 @@ function NewScenarioContent() {
           </div>
         </div>
         {currentStep === 1 && (
-          <div className="bg-white rounded-3xl shadow-2xl shadow-slate-200/50 p-10 border border-slate-100">
-            <header className="mb-8">
-              <h2 className="text-2xl font-black text-[#0F172A] tracking-tight">
+          <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-2xl shadow-slate-200/50 sm:rounded-3xl sm:p-8 lg:p-10">
+            <header className="mb-6 sm:mb-8">
+              <h2 className="text-xl font-black tracking-tight text-[#0F172A] sm:text-2xl">
                 Define Your Strategic Question
               </h2>
-              <p className="text-slate-500 mt-2 font-medium">
+              <p className="mt-2 text-sm font-medium text-slate-500 sm:text-base">
                 Enter the key decision or focal issue you want to explore
                 through scenario planning.
               </p>
             </header>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
+            <div className="mt-6 grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-8">
               <div className="md:col-span-2">
                 <label
                   htmlFor="projectTitle"
@@ -303,8 +419,8 @@ function NewScenarioContent() {
               </div>
             </div>
 
-            <div className="bg-[#ECFDF5] border border-emerald-100 rounded-4xl p-8 flex gap-6 items-start shadow-sm mt-10 mb-6">
-              <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shrink-0 shadow-sm">
+            <div className="mt-8 mb-6 flex flex-col gap-4 rounded-3xl border border-emerald-100 bg-[#ECFDF5] p-5 shadow-sm sm:mt-10 sm:flex-row sm:gap-6 sm:p-8">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white shadow-sm">
                 <CheckCircle2 className="w-6 h-6 text-emerald-600" />
               </div>
               <div className="text-sm">
@@ -322,11 +438,11 @@ function NewScenarioContent() {
               </div>
             </div>
 
-            <div className="mt-10 flex justify-between items-center">
+            <div className="mt-8 flex flex-col-reverse gap-3 sm:mt-10 sm:flex-row sm:items-center sm:justify-between">
               <button
                 type="button"
                 onClick={() => window.history.back()}
-                className="text-slate-400 hover:text-[#0F172A] font-bold text-sm uppercase tracking-widest transition-all flex items-center gap-2"
+                className="flex w-full items-center justify-center gap-2 text-sm font-bold uppercase tracking-widest text-slate-400 transition-all hover:text-[#0F172A] sm:w-auto"
               >
                 <ChevronLeft className="w-4 h-4" />
                 Cancel
@@ -335,7 +451,7 @@ function NewScenarioContent() {
               <button
                 type="button"
                 onClick={handleContinue}
-                className="bg-[#0F172A] text-white px-10 py-4 rounded-xl font-bold flex items-center gap-2 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 active:scale-95 cursor-pointer"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#0F172A] px-8 py-4 font-bold text-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl active:scale-95 sm:w-auto sm:px-10"
               >
                 Continue
                 <ChevronRight className="w-5 h-5" />
@@ -344,12 +460,12 @@ function NewScenarioContent() {
           </div>
         )}
         {currentStep === 2 && (
-          <div className="bg-white rounded-3xl shadow-2xl shadow-slate-200/50 p-10 border border-slate-100">
-            <header className="text-center max-w-2xl mx-auto mb-12">
-              <h2 className="text-3xl font-black text-[#0F172A] tracking-tighter">
+          <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-2xl shadow-slate-200/50 sm:rounded-3xl sm:p-8 lg:p-10">
+            <header className="mx-auto mb-8 max-w-2xl text-center sm:mb-12">
+              <h2 className="text-2xl font-black tracking-tighter text-[#0F172A] sm:text-3xl">
                 Company Profiling
               </h2>
-              <p className="text-slate-500 mt-3 font-medium">
+              <p className="mt-3 text-sm font-medium text-slate-500 sm:text-base">
                 Provide a summary of your company to calibrate the AI model for
                 your industry context.
               </p>
@@ -406,7 +522,7 @@ function NewScenarioContent() {
                 >
                   Scenario Horizon (Year)
                 </label>
-                <div className="flex gap-3">
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
                   {["2030", "2035", "2040", "2045", "2050"].map((year) => (
                     <button
                       key={year}
@@ -429,11 +545,11 @@ function NewScenarioContent() {
             </div>
 
             {/* Buttons */}
-            <div className="mt-12 flex justify-between items-center">
+            <div className="mt-8 flex flex-col-reverse gap-3 sm:mt-12 sm:flex-row sm:items-center sm:justify-between">
               <button
                 type="button"
                 onClick={handleBack}
-                className="bg-slate-100 text-[#0F172A] px-8 py-4 rounded-xl font-bold flex items-center gap-2 hover:bg-slate-200 transition-all active:scale-95"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-100 px-8 py-4 font-bold text-[#0F172A] transition-all hover:bg-slate-200 active:scale-95 sm:w-auto"
               >
                 <ChevronLeft className="w-5 h-5" />
                 Back
@@ -442,7 +558,7 @@ function NewScenarioContent() {
               <button
                 type="button"
                 onClick={handleContinue}
-                className="bg-[#0F172A] text-white px-10 py-4 rounded-xl font-bold flex items-center gap-2 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 active:scale-95 cursor-pointer"
+                className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#0F172A] px-8 py-4 font-bold text-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl active:scale-95 sm:w-auto sm:px-10"
               >
                 Continue
                 <ChevronRight className="w-5 h-5" />
@@ -452,19 +568,19 @@ function NewScenarioContent() {
         )}
         {/* Step 3 - Moving Factors */}
         {currentStep === 3 && !classification && (
-          <div className="bg-white rounded-3xl shadow-2xl shadow-slate-200/50 p-10 border border-slate-100">
+          <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-2xl shadow-slate-200/50 sm:rounded-3xl sm:p-8 lg:p-10">
             {/* Header */}
-            <header className="mb-10">
-              <h2 className="text-3xl font-black text-[#0F172A] tracking-tighter">
+            <header className="mb-8 sm:mb-10">
+              <h2 className="text-2xl font-black tracking-tighter text-[#0F172A] sm:text-3xl">
                 Add Moving Factors
               </h2>
-              <p className="text-slate-500 mt-2 font-medium">
+              <p className="mt-2 text-sm font-medium text-slate-500 sm:text-base">
                 Select the domains that apply to your scenario and describe
                 their impact.
               </p>
             </header>
 
-            <div className="space-y-12">
+            <div className="space-y-8 sm:space-y-12">
               {/* Quick Add Categories */}
               <div>
                 <span className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 block">
@@ -502,7 +618,7 @@ function NewScenarioContent() {
               </div>
 
               {/* Custom Category Input */}
-              <div className="bg-slate-50 rounded-2xl p-6 border-2 border-dashed border-slate-200 group focus-within:border-[#0F172A] focus-within:bg-white transition-all">
+              <div className="rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 p-4 transition-all group focus-within:border-[#0F172A] focus-within:bg-white sm:p-6">
                 <label
                   htmlFor="custom-cat"
                   className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-4"
@@ -510,7 +626,7 @@ function NewScenarioContent() {
                   Can&apos;t find what you&apos;re looking for? Add a custom
                   factor
                 </label>
-                <div className="flex gap-3">
+                <div className="flex flex-col gap-3 sm:flex-row">
                   <div className="relative flex-1">
                     <input
                       id="custom-cat"
@@ -530,7 +646,7 @@ function NewScenarioContent() {
                   <button
                     type="button"
                     onClick={handleAddCustomCategory}
-                    className="bg-[#0F172A] text-white px-8 py-3 rounded-xl text-sm font-bold shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all active:scale-95 flex items-center gap-2 cursor-pointer"
+                    className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#0F172A] px-8 py-3 text-sm font-bold text-white shadow-md transition-all hover:-translate-y-0.5 hover:shadow-xl active:scale-95 sm:w-auto"
                   >
                     <Plus className="w-4 h-4" />
                     Add Factor
@@ -559,16 +675,16 @@ function NewScenarioContent() {
                     {movingFactors.map((factor) => (
                       <div
                         key={factor.category}
-                        className="group relative bg-white border-2 border-slate-50 rounded-3xl p-8 shadow-sm hover:shadow-2xl hover:shadow-slate-200/50 hover:border-blue-50 transition-all duration-500 animate-in fade-in slide-in-from-top-4"
+                        className="group relative animate-in rounded-2xl border-2 border-slate-50 bg-white p-5 shadow-sm transition-all duration-500 fade-in slide-in-from-top-4 hover:border-blue-50 hover:shadow-2xl hover:shadow-slate-200/50 sm:rounded-3xl sm:p-8"
                       >
-                        <div className="flex justify-between items-start mb-6">
-                          <div className="flex items-center gap-3">
+                        <div className="mb-6 flex items-start justify-between gap-3">
+                          <div className="flex min-w-0 items-center gap-3">
                             <div className="w-10 h-10 rounded-xl bg-[#DEF0FA] flex items-center justify-center">
                               <Zap className="w-5 h-5 text-[#0F172A]" />
                             </div>
                             <label
                               htmlFor={`desc-${factor.category}`}
-                              className="text-xl font-black text-[#0F172A] tracking-tight"
+                              className="break-words text-lg font-black tracking-tight text-[#0F172A] sm:text-xl"
                             >
                               {factor.category}
                             </label>
@@ -595,7 +711,7 @@ function NewScenarioContent() {
                             handleDescriptionKeyDown(e, factor.category)
                           }
                           placeholder={`Describe the specific dynamics and future implications of ${factor.category.toLowerCase()}... (Use Enter for bullet points)`}
-                          className="w-full border-2 border-slate-50 bg-slate-50/30 rounded-2xl px-6 py-5 text-sm outline-none focus:ring-2 focus:ring-[#0F172A] focus:bg-white focus:border-transparent transition-all resize-none leading-relaxed min-h-[140px]"
+                          className="min-h-[140px] w-full resize-none rounded-2xl border-2 border-slate-50 bg-slate-50/30 px-4 py-4 text-sm leading-relaxed outline-none transition-all focus:border-transparent focus:bg-white focus:ring-2 focus:ring-[#0F172A] sm:px-6 sm:py-5"
                         />
                       </div>
                     ))}
@@ -613,12 +729,12 @@ function NewScenarioContent() {
             </div>
 
             {/* Buttons */}
-            <div className="mt-12 flex items-center justify-between">
-              <div className="flex gap-4">
+            <div className="mt-8 flex flex-col-reverse gap-3 sm:mt-12 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex w-full gap-3 sm:w-auto sm:gap-4">
                 <button
                   type="button"
                   onClick={handleBack}
-                  className="bg-slate-100 text-[#0F172A] px-8 py-4 rounded-xl font-bold flex items-center gap-2 hover:bg-slate-200 transition-all active:scale-95"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-100 px-8 py-4 font-bold text-[#0F172A] transition-all hover:bg-slate-200 active:scale-95 sm:w-auto"
                 >
                   <ChevronLeft className="w-5 h-5" />
                   Back
@@ -702,21 +818,28 @@ function NewScenarioContent() {
                     }
                   } catch (err: unknown) {
                     console.error("API submission failed:", err);
+                    const apiErrorData = getApiErrorData(err);
+
+                    if (isInsufficientCreditsError(apiErrorData)) {
+                      setCreditError({
+                        message:
+                          apiErrorData?.message ||
+                          "Insufficient credits to start new analysis",
+                        availableCredits: apiErrorData?.availableCredits,
+                        requiredCredits: apiErrorData?.requiredCredits,
+                        sessionId: apiErrorData?.sessionId,
+                      });
+                      setDfError("");
+                      return;
+                    }
+
                     let errorMessage =
                       "Failed to submit moving factors. Please check your network and try again.";
 
-                    if (err instanceof Error) {
+                    if (apiErrorData?.message) {
+                      errorMessage = apiErrorData.message;
+                    } else if (err instanceof Error) {
                       errorMessage = err.message;
-                    } else if (
-                      typeof err === "object" &&
-                      err !== null &&
-                      "response" in err
-                    ) {
-                      const axiosError = err as {
-                        response: { data?: { message?: string } };
-                      };
-                      errorMessage =
-                        axiosError.response.data?.message || errorMessage;
                     }
 
                     if (
@@ -735,7 +858,7 @@ function NewScenarioContent() {
                   }
                 }}
                 disabled={isClassifying}
-                className="bg-[#0F172A] text-white px-10 py-4 rounded-xl font-bold flex items-center gap-2 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 active:scale-95 shadow-lg shadow-blue-900/10 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
+                className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#0F172A] px-8 py-4 font-bold text-white shadow-lg shadow-blue-900/10 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl active:scale-95 disabled:cursor-not-allowed disabled:opacity-70 sm:w-auto sm:px-10"
               >
                 {isClassifying ? (
                   <>
@@ -777,13 +900,140 @@ function NewScenarioContent() {
         {/* Step 5: Strategic Wind-tunnelling (Scenario Matrix) */}
         {currentStep === 5 && <ScenarioMatrixView />}
       </div>
+
+      <Dialog open={isInviteDialogOpen} onOpenChange={setIsInviteDialogOpen}>
+        <DialogContent className="max-w-[420px] bg-white p-6">
+          <DialogHeader>
+            <DialogTitle>Invite a guest</DialogTitle>
+            <DialogDescription>
+              Send a secure invitation link to let a guest access this scenario
+              flow.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div>
+            <label
+              htmlFor="inviteEmail"
+              className="mb-2 block text-xs font-bold uppercase tracking-widest text-slate-400"
+            >
+              Guest email
+            </label>
+            <input
+              id="inviteEmail"
+              type="email"
+              value={inviteEmail}
+              onChange={(event) => setInviteEmail(event.target.value)}
+              placeholder="guest@example.com"
+              className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm font-medium outline-none transition focus:border-[#0F172A]"
+            />
+          </div>
+
+          <DialogFooter className="mt-3">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsInviteDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={handleSendInvite}
+              disabled={isSendingInvite}
+              className="bg-[#0F172A] text-white hover:bg-[#0F172A]/90"
+            >
+              {isSendingInvite ? (
+                <>
+                  Sending...
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                </>
+              ) : (
+                "Send Invite"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={Boolean(creditError)}
+        onOpenChange={(open) => {
+          if (!open) setCreditError(null);
+        }}
+      >
+        <DialogContent className="max-w-[460px] border border-amber-100 bg-white p-0 shadow-2xl">
+          <div className="border-b border-amber-100 bg-amber-50 px-6 py-5">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-white text-amber-600 shadow-sm">
+              <AlertTriangle className="h-6 w-6" />
+            </div>
+          </div>
+
+          <div className="px-6 pb-6">
+            <DialogHeader className="space-y-3 text-center">
+              <DialogTitle className="text-2xl font-black text-[#0F172A]">
+                Not enough credits
+              </DialogTitle>
+              <DialogDescription className="text-sm leading-6 text-slate-500">
+                {creditError?.message ||
+                  "You do not have enough credits to start a new analysis."}
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="mt-5 grid grid-cols-2 gap-3">
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-center">
+                <p className="text-xs font-bold uppercase tracking-widest text-slate-400">
+                  Available
+                </p>
+                <p className="mt-2 text-2xl font-black text-[#0F172A]">
+                  {creditError?.availableCredits ?? 0}
+                </p>
+              </div>
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-center">
+                <p className="text-xs font-bold uppercase tracking-widest text-slate-400">
+                  Required
+                </p>
+                <p className="mt-2 text-2xl font-black text-[#0F172A]">
+                  {creditError?.requiredCredits ?? 1}
+                </p>
+              </div>
+            </div>
+
+            {/* {creditError?.sessionId && (
+              <div className="mt-4 rounded-xl border border-slate-200 bg-white px-4 py-3">
+                <p className="text-xs font-bold uppercase tracking-widest text-slate-400">
+                  Session ID
+                </p>
+                <p className="mt-1 break-all text-xs font-semibold text-slate-600">
+                  {creditError.sessionId}
+                </p>
+              </div>
+            )} */}
+
+            <DialogFooter className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-center">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setCreditError(null)}
+              >
+                Close
+              </Button>
+              <Button
+                asChild
+                className="bg-[#0F172A] text-white hover:bg-[#0F172A]/90"
+              >
+                <Link href="/pricing">View Pricing</Link>
+              </Button>
+            </DialogFooter>
+          </div>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }
 
-export default function NewScenario() {
+export default function NewScenario({ inviteToken }: { inviteToken?: string }) {
   return (
-    <ScenarioProvider>
+    <ScenarioProvider inviteToken={inviteToken}>
       <NewScenarioContent />
     </ScenarioProvider>
   );

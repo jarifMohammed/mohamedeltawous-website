@@ -35,9 +35,10 @@ const defaultStrategicOptions: string[] = [];
 
 const ScenarioContext = createContext<ScenarioState | undefined>(undefined);
 
-export const ScenarioProvider: React.FC<{ children: ReactNode }> = ({
-  children,
-}) => {
+export const ScenarioProvider: React.FC<{
+  children: ReactNode;
+  inviteToken?: string;
+}> = ({ children, inviteToken }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [company, setCompany] = useState<CompanyInfo>({ ...emptyCompany });
   const [forces, setForces] = useState<DrivingForce[]>([]);
@@ -66,6 +67,18 @@ export const ScenarioProvider: React.FC<{ children: ReactNode }> = ({
     );
     clearScenarioState();
   }, []);
+
+  useEffect(() => {
+    if (inviteToken) {
+      localStorage.setItem("inviteToken", inviteToken);
+    } else {
+      localStorage.removeItem("inviteToken");
+    }
+
+    return () => {
+      localStorage.removeItem("inviteToken");
+    };
+  }, [inviteToken]);
 
   // Whenever state changes, sync to localStorage to "persist across function calls"
   useEffect(() => {
@@ -182,6 +195,8 @@ export const ScenarioProvider: React.FC<{ children: ReactNode }> = ({
   }, []);
 
   const value: ScenarioState = {
+    inviteToken,
+    isInviteMode: Boolean(inviteToken),
     currentStep,
     company,
     forces,

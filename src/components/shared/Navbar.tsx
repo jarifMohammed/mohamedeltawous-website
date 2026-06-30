@@ -161,10 +161,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Globe, Menu, X } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, type ChangeEvent, type MouseEvent } from "react";
 import { motion } from "framer-motion";
 import { useSession } from "next-auth/react";
 const MotionLink = motion(Link);
+import AuthRequiredDialog from "@/components/shared/AuthRequiredDialog";
 import {
   Select,
   SelectContent,
@@ -262,11 +263,25 @@ function applyGoogleTranslate(languageCode: LanguageCode, retries = 12) {
 
 export default function Navbar() {
   const pathname = usePathname();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
 
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [language, setLanguage] = useState<LanguageCode>("en");
+  const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
+  const scenarioHref = "/dashboard/new-scenario";
+
+  const handleScenarioClick = (event: MouseEvent<HTMLAnchorElement>) => {
+    if (status === "loading") {
+      event.preventDefault();
+      return;
+    }
+
+    if (status === "unauthenticated") {
+      event.preventDefault();
+      setIsAuthDialogOpen(true);
+    }
+  };
 
   // Initialize language
   useEffect(() => {
@@ -361,7 +376,7 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleLanguageChange = (e: ChangeEvent<HTMLSelectElement>) => {
     const nextLanguage = e.target.value as LanguageCode;
 
     setLanguage(nextLanguage);
@@ -448,7 +463,7 @@ export default function Navbar() {
               onValueChange={(value) =>
                 handleLanguageChange({
                   target: { value },
-                } as React.ChangeEvent<HTMLSelectElement>)
+                } as ChangeEvent<HTMLSelectElement>)
               }
             >
               <SelectTrigger className="notranslate h-[46px] min-w-[160px] rounded-xl border border-gray-200 bg-white/90 px-4 text-[#111827] shadow-sm transition-all duration-200 hover:border-gray-300 hover:bg-white focus:ring-0 focus:ring-offset-0">
@@ -483,7 +498,8 @@ export default function Navbar() {
           )}
 
        <MotionLink
-      href="/dashboard/new-scenario"
+      href={scenarioHref}
+      onClick={handleScenarioClick}
       className="group relative hidden sm:inline-flex rounded-lg bg-[#0f172a] px-5 py-2.5 text-[14px] md:px-6 md:py-3.5 md:text-[15px] font-semibold text-white transition hover:opacity-90 shadow-lg shadow-gray-200"
       whileHover={{ y: -2 }}
     >
@@ -585,14 +601,21 @@ export default function Navbar() {
 
           {/* Mobile CTA */}
           <Link
-            href="/dashboard/new-scenario"
-            onClick={() => setIsOpen(false)}
+            href={scenarioHref}
+            onClick={(event) => {
+              handleScenarioClick(event);
+              setIsOpen(false);
+            }}
             className="mt-4 inline-flex justify-center rounded-lg bg-[#0f172a] px-4 py-3 text-[14px] font-semibold text-white transition hover:opacity-90 sm:hidden"
           >
             Start Scenario Analysis
           </Link>
         </div>
       </div>
+      <AuthRequiredDialog
+        open={isAuthDialogOpen}
+        onOpenChange={setIsAuthDialogOpen}
+      />
     </header>
   );
 }

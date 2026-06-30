@@ -5,6 +5,8 @@ import ParticlesBackground from "@/components/shared/ParticlesBackground";
 import CountUp from "@/components/shared/CountUp";
 import Link from "next/link";
 import { useEffect, useRef, useState, MouseEvent } from "react";
+import { useSession } from "next-auth/react";
+import AuthRequiredDialog from "@/components/shared/AuthRequiredDialog";
 
 // মেট্রিক্স পজিশন অনুযায়ী সাজানো: 
 // [Top-Left, Top-Right, Bottom-Left, Bottom-Right]
@@ -107,8 +109,11 @@ function ScenarioCard({ item }: { item: (typeof scenarios)[0] }) {
 
 export default function Banner() {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const { status } = useSession();
   const [playing, setPlaying] = useState(false);
   const [activeTab, setActiveTab] = useState<"Week" | "Month">("Month");
+  const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
+  const scenarioHref = "/dashboard/new-scenario";
 
   useEffect(() => {
     const video = videoRef.current;
@@ -128,6 +133,18 @@ export default function Banner() {
     } else {
       videoRef.current.play();
       setPlaying(true);
+    }
+  };
+
+  const handleScenarioClick = (event: MouseEvent<HTMLAnchorElement>) => {
+    if (status === "loading") {
+      event.preventDefault();
+      return;
+    }
+
+    if (status === "unauthenticated") {
+      event.preventDefault();
+      setIsAuthDialogOpen(true);
     }
   };
 
@@ -159,7 +176,8 @@ export default function Banner() {
 
             <div className="mt-9 md:ml-28 w-full md:w-auto flex justify-center">
               <Link
-                href="/dashboard/new-scenario"
+                href={scenarioHref}
+                onClick={handleScenarioClick}
                 className="inline-flex h-[52px] items-center justify-center rounded-xl bg-[#0F172A] px-8 text-[15px] font-bold text-white transition hover:opacity-90 shadow-xl shadow-blue-900/10 cursor-pointer"
               >
                 Start Scenario Analysis
@@ -419,6 +437,10 @@ export default function Banner() {
           </div>
         </div>
       </div>
+      <AuthRequiredDialog
+        open={isAuthDialogOpen}
+        onOpenChange={setIsAuthDialogOpen}
+      />
     </section>
   );
 }

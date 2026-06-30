@@ -49,11 +49,11 @@ const ForceClassificationView: React.FC<ForceClassificationViewProps> = ({
   const uncertaintiesCount = data.uncertainties.length;
 
   return (
-    <div className="w-full bg-white rounded-[2.5rem] shadow-2xl shadow-slate-200/50 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700 flex flex-col border border-slate-100">
+    <div className="w-full overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-2xl shadow-slate-200/50 animate-in fade-in slide-in-from-bottom-4 duration-700 flex flex-col sm:rounded-[2.5rem]">
       {/* Header */}
-      <header className="px-10 py-8 border-b border-slate-100 flex items-center justify-between bg-white relative z-10">
+      <header className="relative z-10 flex flex-col gap-4 border-b border-slate-100 bg-white px-5 py-6 sm:px-10 sm:py-8">
         <div>
-          <div className="flex items-center gap-3 mb-2">
+          <div className="mb-2 flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
               <BarChart3 className="w-4 h-4 text-blue-600" />
             </div>
@@ -61,10 +61,10 @@ const ForceClassificationView: React.FC<ForceClassificationViewProps> = ({
               Step 3 Analysis • Strategic Pulse
             </span>
           </div>
-          <h2 className="text-3xl font-black text-[#0F172A] tracking-tighter">
+          <h2 className="text-2xl font-black tracking-tighter text-[#0F172A] sm:text-3xl">
             Strategic Force Classification
           </h2>
-          <p className="text-slate-500 text-sm font-medium mt-1">
+          <p className="mt-1 text-sm font-medium text-slate-500">
             Analyzing identified patterns and critical uncertainties for your
             scenario planning.
           </p>
@@ -72,7 +72,7 @@ const ForceClassificationView: React.FC<ForceClassificationViewProps> = ({
       </header>
 
       {/* Summary Bar */}
-      <div className="bg-slate-50/50 px-10 py-5 border-b border-slate-100 flex items-center gap-8">
+      <div className="flex flex-col gap-4 border-b border-slate-100 bg-slate-50/50 px-5 py-5 sm:flex-row sm:items-center sm:gap-8 sm:px-10">
         <div className="flex items-center gap-3">
           <div className="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center">
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
@@ -82,7 +82,7 @@ const ForceClassificationView: React.FC<ForceClassificationViewProps> = ({
             {predeterminedCount === 1 ? "Force" : "Forces"}
           </span>
         </div>
-        <div className="w-px h-6 bg-slate-200" />
+        <div className="hidden h-6 w-px bg-slate-200 sm:block" />
         <div className="flex items-center gap-3">
           <div className="w-6 h-6 rounded-full bg-amber-100 flex items-center justify-center">
             <AlertCircle className="w-3.5 h-3.5 text-amber-600" />
@@ -95,9 +95,9 @@ const ForceClassificationView: React.FC<ForceClassificationViewProps> = ({
       </div>
 
       {/* Content Section */}
-      <div className="p-10 space-y-16">
+      <div className="space-y-10 p-5 sm:space-y-16 sm:p-10">
         {error && (
-          <div className="bg-rose-50 border border-rose-100 rounded-[2rem] p-10 flex flex-col items-center text-center animate-in slide-in-from-top-4 duration-500 shadow-sm">
+          <div className="flex flex-col items-center rounded-3xl border border-rose-100 bg-rose-50 p-6 text-center shadow-sm animate-in slide-in-from-top-4 duration-500 sm:p-10">
             <div className="w-16 h-16 rounded-2xl bg-rose-100 flex items-center justify-center mb-6">
               <AlertCircle className="w-8 h-8 text-rose-600" />
             </div>
@@ -107,10 +107,10 @@ const ForceClassificationView: React.FC<ForceClassificationViewProps> = ({
             <p className="text-slate-600 font-medium leading-relaxed max-w-md">
               {error}
             </p>
-            <div className="mt-8 flex gap-4 w-full justify-center">
+            <div className="mt-8 flex w-full justify-center gap-4">
               <button
                 onClick={onBack}
-                className="px-8 py-4 bg-white border-2 border-rose-100 text-rose-600 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-rose-50 transition-all active:scale-95 cursor-pointer shadow-sm"
+                className="w-full cursor-pointer rounded-xl border-2 border-rose-100 bg-white px-8 py-4 text-xs font-black uppercase tracking-widest text-rose-600 shadow-sm transition-all hover:bg-rose-50 active:scale-95 sm:w-auto"
               >
                 Back to factors
               </button>
@@ -120,12 +120,12 @@ const ForceClassificationView: React.FC<ForceClassificationViewProps> = ({
 
         {/* Predetermined Forces Section */}
         <section>
-          <div className="flex items-center gap-3 mb-8">
+          <div className="mb-6 flex items-start gap-3 sm:mb-8 sm:items-center">
             <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center shadow-inner border border-emerald-100">
               <Target className="w-5 h-5 text-emerald-600" />
             </div>
             <div>
-              <h3 className="text-xl font-black text-[#0F172A] tracking-tight">
+              <h3 className="text-lg font-black tracking-tight text-[#0F172A] sm:text-xl">
                 Predetermined Forces
               </h3>
               <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-0.5">
@@ -147,12 +147,12 @@ const ForceClassificationView: React.FC<ForceClassificationViewProps> = ({
 
         {/* Critical Uncertainties Section */}
         <section>
-          <div className="flex items-center gap-3 mb-8">
+          <div className="mb-6 flex items-start gap-3 sm:mb-8 sm:items-center">
             <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center shadow-inner border border-amber-100">
               <BarChart3 className="w-5 h-5 text-amber-600" />
             </div>
             <div>
-              <h3 className="text-xl font-black text-[#0F172A] tracking-tight">
+              <h3 className="text-lg font-black tracking-tight text-[#0F172A] sm:text-xl">
                 Critical Uncertainties
               </h3>
               <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-0.5">
@@ -174,11 +174,11 @@ const ForceClassificationView: React.FC<ForceClassificationViewProps> = ({
       </div>
 
       {/* Footer sticky bar */}
-      <footer className="px-10 py-8 border-t border-slate-100 bg-slate-50/30 flex justify-end gap-5 items-center">
+      <footer className="flex flex-col-reverse gap-3 border-t border-slate-100 bg-slate-50/30 px-5 py-5 sm:flex-row sm:items-center sm:justify-end sm:gap-5 sm:px-10 sm:py-8">
         <button
           onClick={onBack}
           disabled={isGeneratingAxes}
-          className="px-8 py-4 rounded-xl text-sm font-black uppercase tracking-widest text-slate-500 hover:text-[#0F172A] hover:bg-white border border-transparent hover:border-slate-200 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 group shadow-sm"
+          className="group flex w-full items-center justify-center gap-2 rounded-xl border border-transparent px-6 py-4 text-sm font-black uppercase tracking-widest text-slate-500 shadow-sm transition-all hover:border-slate-200 hover:bg-white hover:text-[#0F172A] active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:px-8"
         >
           <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
           Back to factors
@@ -218,7 +218,7 @@ const ForceClassificationView: React.FC<ForceClassificationViewProps> = ({
               );
             }
           }}
-          className="px-10 py-4 rounded-xl text-sm font-black uppercase tracking-widest bg-[#0F172A] text-white flex items-center gap-3 hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed min-w-[240px] justify-center cursor-pointer shadow-lg shadow-blue-900/10"
+          className="flex w-full min-w-0 cursor-pointer items-center justify-center gap-3 rounded-xl bg-[#0F172A] px-6 py-4 text-sm font-black uppercase tracking-widest text-white shadow-lg shadow-blue-900/10 transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl active:scale-95 disabled:cursor-not-allowed disabled:opacity-70 sm:w-auto sm:min-w-[240px] sm:px-10"
         >
           {isGeneratingAxes ? (
             <>
@@ -269,7 +269,7 @@ const ForceCard: React.FC<ForceCardProps> = ({ item, type }) => {
   return (
     <div
       className={`
-      group relative rounded-3xl p-8 border-2 transition-all duration-500 hover:shadow-2xl
+      group relative rounded-2xl p-5 border-2 transition-all duration-500 hover:shadow-2xl sm:rounded-3xl sm:p-8
       ${
         isUncertainty
           ? "bg-white border-slate-50 shadow-sm hover:border-amber-100/50 hover:shadow-amber-900/5"
@@ -291,7 +291,7 @@ const ForceCard: React.FC<ForceCardProps> = ({ item, type }) => {
           >
             {isUncertainty ? "Critical Uncertainty" : "Predetermined"}
           </span>
-          <h4 className="text-xl font-black text-[#0F172A] tracking-tighter mt-3 line-clamp-2">
+          <h4 className="mt-3 line-clamp-2 text-lg font-black tracking-tighter text-[#0F172A] sm:text-xl">
             {title}
           </h4>
         </div>
@@ -304,7 +304,7 @@ const ForceCard: React.FC<ForceCardProps> = ({ item, type }) => {
       )}
 
       {isUncertainty && impact && (
-        <div className="mt-8 p-5 rounded-2xl bg-slate-50 border border-slate-100 flex gap-4 items-start shadow-inner">
+        <div className="mt-6 flex items-start gap-4 rounded-2xl border border-slate-100 bg-slate-50 p-4 shadow-inner sm:mt-8 sm:p-5">
           <div className="mt-1 w-2 h-2 rounded-full bg-amber-500 shrink-0 shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
           <div>
             <span className="text-[10px] font-black text-[#0F172A] uppercase tracking-widest block mb-1.5 opacity-60">

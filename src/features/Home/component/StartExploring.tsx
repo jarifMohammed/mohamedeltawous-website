@@ -2,8 +2,27 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { useState, type MouseEvent } from "react";
+import { useSession } from "next-auth/react";
+import AuthRequiredDialog from "@/components/shared/AuthRequiredDialog";
 
 export default function StartExploring() {
+  const { status } = useSession();
+  const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
+  const scenarioHref = "/dashboard/new-scenario";
+
+  const handleScenarioClick = (event: MouseEvent<HTMLAnchorElement>) => {
+    if (status === "loading") {
+      event.preventDefault();
+      return;
+    }
+
+    if (status === "unauthenticated") {
+      event.preventDefault();
+      setIsAuthDialogOpen(true);
+    }
+  };
+
   return (
     <section className="relative w-full h-[600px] overflow-hidden">
       {/* Background Video */}
@@ -34,7 +53,8 @@ export default function StartExploring() {
 
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
-              href="/dashboard/new-scenario"
+              href={scenarioHref}
+              onClick={handleScenarioClick}
               className="inline-flex h-[52px] items-center justify-center rounded-xl bg-[#0F172A] px-8 text-[15px] font-bold text-white transition hover:opacity-90 shadow-xl shadow-blue-900/10 cursor-pointer"
             >
               Start Scenario Analysis
@@ -77,6 +97,10 @@ export default function StartExploring() {
           </div>
         </div>
       </div>
+      <AuthRequiredDialog
+        open={isAuthDialogOpen}
+        onOpenChange={setIsAuthDialogOpen}
+      />
     </section>
   );
 }

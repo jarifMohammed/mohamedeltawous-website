@@ -27,6 +27,15 @@ axiosInstance.interceptors.request.use(
       if (session && "accessToken" in session && config.headers) {
         config.headers.Authorization = `Bearer ${session.accessToken}`;
       }
+
+      const inviteToken =
+        typeof window !== "undefined"
+          ? localStorage.getItem("inviteToken")
+          : null;
+
+      if (inviteToken && config.headers) {
+        config.headers["Invite-Token"] = inviteToken;
+      }
     } catch (error) {
       console.error("Failed to get session:", error);
     }
@@ -51,4 +60,3 @@ axiosInstance.interceptors.response.use(
 );
 
 export default axiosInstance;
-

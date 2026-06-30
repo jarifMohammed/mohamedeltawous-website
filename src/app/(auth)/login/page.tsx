@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { Suspense, useState } from "react";
 import { motion } from "framer-motion";
 import { Mail, Lock, User, Eye, EyeOff, Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { signIn, getSession } from "next-auth/react";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
@@ -34,7 +34,7 @@ const registerSchema = z
 type LoginFormType = z.infer<typeof loginSchema>;
 type RegisterFormType = z.infer<typeof registerSchema>;
 
-export default function AnimatedAuth() {
+function AnimatedAuth() {
   const [isLogin, setIsLogin] = useState(true);
 
   // Login states
@@ -47,6 +47,12 @@ export default function AnimatedAuth() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl");
+  const safeCallbackUrl =
+    callbackUrl?.startsWith("/") && !callbackUrl.startsWith("//")
+      ? callbackUrl
+      : null;
 
   const toggleForm = () => setIsLogin(!isLogin);
 
@@ -81,7 +87,9 @@ export default function AnimatedAuth() {
 
       const session = await getSession();
       const role = (session?.user as { role?: string })?.role;
-      if (role === "admin") {
+      if (safeCallbackUrl) {
+        router.push(safeCallbackUrl);
+      } else if (role === "admin") {
         router.push("/admin");
       } else {
         router.push("/dashboard/new-scenario");
@@ -135,19 +143,20 @@ export default function AnimatedAuth() {
 
       toast.success("Account created successfully!");
 
-      // Auto login after registration
-      const loginRes = await signIn("credentials", {
-        email: values.email,
-        password: values.password,
-        redirect: false,
-      });
-
-      if (loginRes?.error) {
-        setIsLogin(true);
-        return;
+      const accessToken = data?.data?.accessToken;
+      if (!accessToken) {
+        throw new Error("Verification token missing from server response");
       }
 
-      router.push("/");
+      localStorage.setItem("registration_verification_token", accessToken);
+      localStorage.setItem("registration_verification_email", values.email);
+
+      const params = new URLSearchParams({ email: values.email });
+      if (safeCallbackUrl) {
+        params.set("callbackUrl", safeCallbackUrl);
+      }
+
+      router.push(`/verify-email?${params.toString()}`);
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Registration failed",
@@ -158,9 +167,9 @@ export default function AnimatedAuth() {
   };
 
   return (
-    <section className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
+    <section className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-6 sm:p-6">
       {/* Main Container */}
-      <div className="relative w-full max-w-6xl bg-white rounded-[40px] shadow-2xl overflow-hidden min-h-[700px] flex border border-slate-100">
+      <div className="relative w-full max-w-6xl bg-white rounded-3xl lg:rounded-[40px] shadow-2xl overflow-hidden min-h-0 lg:min-h-[700px] flex border border-slate-100">
         {/* Sliding Overlay Section */}
         <motion.div
           animate={{ x: isLogin ? "100%" : "0%" }}
@@ -201,14 +210,16 @@ export default function AnimatedAuth() {
         ====================== */}
 
         <div
-          className={`w-full lg:w-1/2 p-10 md:p-16 flex flex-col justify-center transition-opacity duration-500 ${!isLogin && "lg:opacity-0"
+          className={`w-full lg:w-1/2 px-5 py-8 sm:p-10 md:p-16 flex-col justify-center transition-opacity duration-500 ${isLogin ? "flex" : "hidden lg:flex lg:opacity-0"
             }`}
         >
-          <h2 className="text-3xl font-bold text-slate-900 mb-2">
+          <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">
             Login to Account
           </h2>
 
-          <p className="text-slate-500 mb-8">Use your email for login</p>
+          <p className="text-sm sm:text-base text-slate-500 mb-6 sm:mb-8">
+            Use your email for login
+          </p>
 
           <form
             onSubmit={loginForm.handleSubmit(handleLogin)}
@@ -268,7 +279,7 @@ export default function AnimatedAuth() {
 
           <button
             onClick={toggleForm}
-            className="lg:hidden mt-6 text-pink-600 font-bold"
+            className="lg:hidden mt-6 text-[#0F172A] font-bold text-sm"
           >
             New here? Sign Up
           </button>
@@ -279,14 +290,16 @@ export default function AnimatedAuth() {
         ====================== */}
 
         <div
-          className={`w-full lg:w-1/2 p-10 md:p-16 flex flex-col justify-center transition-opacity duration-500 ${isLogin && "lg:opacity-0"
+          className={`w-full lg:w-1/2 px-5 py-8 sm:p-10 md:p-16 flex-col justify-center transition-opacity duration-500 ${isLogin ? "hidden lg:flex lg:opacity-0" : "flex"
             }`}
         >
-          <h2 className="text-3xl font-bold text-slate-900 mb-2">
+          <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">
             Create Account
           </h2>
 
-          <p className="text-slate-500 mb-8">Join our community today</p>
+          <p className="text-sm sm:text-base text-slate-500 mb-6 sm:mb-8">
+            Join our community today
+          </p>
 
           <form
             onSubmit={registerForm.handleSubmit(handleRegister)}
@@ -366,13 +379,27 @@ export default function AnimatedAuth() {
 
           <button
             onClick={toggleForm}
-            className="lg:hidden mt-6 text-pink-600 font-bold"
+            className="lg:hidden mt-6 text-[#0F172A] font-bold text-sm"
           >
             Have an account? Log In
           </button>
         </div>
       </div>
     </section>
+  );
+}
+
+export default function AnimatedAuthPage() {
+  return (
+    <Suspense
+      fallback={
+        <section className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
+          <Loader2 className="h-6 w-6 animate-spin text-slate-700" />
+        </section>
+      }
+    >
+      <AnimatedAuth />
+    </Suspense>
   );
 }
 
@@ -400,7 +427,7 @@ const AuthInput = React.forwardRef<HTMLInputElement, AuthInputProps>(
           ref={ref}
           type={type}
           {...props}
-          className="w-full pl-12 pr-14 py-4 rounded-[16px] border border-black/10 bg-white focus:ring-1 focus:ring-black outline-none transition-all"
+          className="w-full pl-11 pr-12 py-3.5 sm:pl-12 sm:pr-14 sm:py-4 rounded-[14px] sm:rounded-[16px] border border-black/10 bg-white text-sm sm:text-base focus:ring-1 focus:ring-black outline-none transition-all"
         />
 
         {setShowPassword && (

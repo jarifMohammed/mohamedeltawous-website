@@ -255,6 +255,8 @@ export interface ReportResponse {
 }
 
 export interface ScenarioState {
+  inviteToken?: string;
+  isInviteMode: boolean;
   currentStep: number;
   company: CompanyInfo;
   forces: DrivingForce[];
