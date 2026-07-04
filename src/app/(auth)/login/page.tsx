@@ -1,7 +1,7 @@
 "use client";
 
-import React, { Suspense, useState } from "react";
-import { motion } from "framer-motion";
+import React, { MouseEvent, Suspense, useState } from "react";
+import { motion, useMotionTemplate, useMotionValue } from "framer-motion";
 import { Mail, Lock, User, Eye, EyeOff, Loader2 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn, getSession } from "next-auth/react";
@@ -187,7 +187,7 @@ function AnimatedAuth() {
             exit={{ opacity: 0, y: -20 }}
           >
             <h2 className="text-4xl font-bold mb-4 text-[#0F172A]">
-              {isLogin ? "Hello, Friend!" : "Welcome Back!"}
+              {isLogin ? "Hello, Chief!" : "Welcome Back!"}
             </h2>
 
             <p className="text-[#475569] mb-8 leading-relaxed">
@@ -198,7 +198,7 @@ function AnimatedAuth() {
 
             <button
               onClick={toggleForm}
-              className="px-10 py-3 border-2 border-[#0F172A] text-[#0F172A] cursor-pointer rounded-[8px] font-bold hover:bg-[#0F172A] hover:text-white transition-all duration-300"
+              className="px-10 py-3 border-2 border-[#0F172A] text-[#0F172A] cursor-pointer rounded-[8px] font-bold hover:bg-[#0F172A] hover:text-white transition-all duration-300 cursor-pointer"
             >
               {isLogin ? "SIGN UP" : "LOG IN"}
             </button>
@@ -209,7 +209,7 @@ function AnimatedAuth() {
             Login Section
         ====================== */}
 
-        <div
+        <AuthSpotlightPanel
           className={`w-full lg:w-1/2 px-5 py-8 sm:p-10 md:p-16 flex-col justify-center transition-opacity duration-500 ${isLogin ? "flex" : "hidden lg:flex lg:opacity-0"
             }`}
         >
@@ -264,7 +264,7 @@ function AnimatedAuth() {
             <button
               type="submit"
               disabled={loginLoading}
-              className="w-full bg-[#0F172A] text-white py-4 rounded-[8px] font-bold hover:shadow-xl transition-all flex items-center justify-center gap-2 disabled:opacity-70"
+              className="w-full bg-[#0F172A] text-white py-4 rounded-[8px] font-bold hover:shadow-xl transition-all flex items-center justify-center gap-2 disabled:opacity-70 cursor-pointer"
             >
               {loginLoading ? (
                 <>
@@ -279,17 +279,17 @@ function AnimatedAuth() {
 
           <button
             onClick={toggleForm}
-            className="lg:hidden mt-6 text-[#0F172A] font-bold text-sm"
+            className="lg:hidden mt-6 text-[#0F172A] font-bold text-sm cursor-pointer"
           >
             New here? Sign Up
           </button>
-        </div>
+        </AuthSpotlightPanel>
 
         {/* ======================
             Register Section
         ====================== */}
 
-        <div
+        <AuthSpotlightPanel
           className={`w-full lg:w-1/2 px-5 py-8 sm:p-10 md:p-16 flex-col justify-center transition-opacity duration-500 ${isLogin ? "hidden lg:flex lg:opacity-0" : "flex"
             }`}
         >
@@ -364,7 +364,7 @@ function AnimatedAuth() {
             <button
               type="submit"
               disabled={registerLoading}
-              className="w-full bg-[#0F172A] text-white py-4 rounded-[8px] font-bold hover:shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-70"
+              className="w-full bg-[#0F172A] text-white py-4 rounded-[8px] font-bold hover:shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-70 cursor-pointer"
             >
               {registerLoading ? (
                 <>
@@ -379,11 +379,11 @@ function AnimatedAuth() {
 
           <button
             onClick={toggleForm}
-            className="lg:hidden mt-6 text-[#0F172A] font-bold text-sm"
+            className="lg:hidden mt-6 text-[#0F172A] font-bold text-sm cursor-pointer"
           >
             Have an account? Log In
           </button>
-        </div>
+        </AuthSpotlightPanel>
       </div>
     </section>
   );
@@ -400,6 +400,57 @@ export default function AnimatedAuthPage() {
     >
       <AnimatedAuth />
     </Suspense>
+  );
+}
+
+type AuthSpotlightPanelProps = {
+  children: React.ReactNode;
+  className?: string;
+};
+
+function AuthSpotlightPanel({ children, className }: AuthSpotlightPanelProps) {
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
+  function handleMouseMove({ currentTarget, clientX, clientY }: MouseEvent) {
+    const { left, top } = currentTarget.getBoundingClientRect();
+    mouseX.set(clientX - left);
+    mouseY.set(clientY - top);
+  }
+
+  return (
+    <div
+      onMouseMove={handleMouseMove}
+      className={`group relative overflow-hidden bg-white ${className ?? ""}`}
+    >
+      <motion.div
+        className="pointer-events-none absolute -inset-px opacity-0 blur-[22px] transition duration-300 group-hover:opacity-100"
+        style={{
+          background: useMotionTemplate`
+            radial-gradient(
+              190px circle at ${mouseX}px ${mouseY}px,
+              rgba(14, 165, 233, 0.18),
+              transparent 72%
+            )
+          `,
+        }}
+      />
+
+      <motion.div
+        className="pointer-events-none absolute -inset-px opacity-0 transition duration-300 group-hover:opacity-100"
+        style={{
+          background: useMotionTemplate`
+            radial-gradient(
+              340px circle at ${mouseX}px ${mouseY}px,
+              rgba(14, 165, 233, 0.14),
+              transparent 80%
+            )
+          `,
+        }}
+      />
+
+      <div className="relative z-10">{children}</div>
+    </div>
   );
 }
 

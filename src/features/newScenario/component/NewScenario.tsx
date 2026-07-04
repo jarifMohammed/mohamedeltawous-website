@@ -1,16 +1,31 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 import { useScenarioContext, ScenarioProvider } from "../store/ScenarioContext";
 import {
   useClassifyWorkshop,
+  useCreateWorkshopSession,
   useGenerateAxes,
   useSendScenarioInvite,
+  useSubmitGuestFactor,
+  useWorkshopBySession,
 } from "../hooks/useNewScenario";
 import ForceClassificationView from "./ForceClassificationView";
 import ScenarioResultView from "./ScenarioResultView";
 import ScenarioMatrixView from "./ScenarioMatrixView";
+import { GuestContribution, MovingFactor } from "../types/newScenario.types";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -36,7 +51,10 @@ import {
   LayoutGrid,
   Mail,
   AlertTriangle,
+  RefreshCw,
+  Users,
 } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const PREDEFINED_CATEGORIES = [
   "Society",
@@ -89,7 +107,16 @@ function isInsufficientCreditsError(data?: ApiErrorData) {
   );
 }
 
+function formatMovingFactor(factor: MovingFactor) {
+  return `${factor.category}: ${factor.description} ..... ${factor.category}`;
+}
+
+function getGuestForceKey(email: string, force: string) {
+  return `${email}::${force}`;
+}
+
 function NewScenarioContent() {
+  const { data: session } = useSession();
   const {
     currentStep,
     company,
@@ -101,27 +128,42 @@ function NewScenarioContent() {
     updateAxes,
     setClassification,
     classification,
-    isClassificationModalOpen,
-    isAxesModalOpen,
-    setClassificationModal,
-    setAxesModal,
-    axes,
     conversationHistory,
     isInviteMode,
+    inviteToken,
+    resetStore,
   } = useScenarioContext();
 
   const { mutateAsync: classifyWorker, isPending: isClassifying } =
     useClassifyWorkshop();
+  const { mutateAsync: createWorkshop, isPending: isCreatingWorkshop } =
+    useCreateWorkshopSession();
   const { mutateAsync: generateAxes, isPending: isGeneratingAxes } =
     useGenerateAxes();
   const { mutateAsync: sendInvite, isPending: isSendingInvite } =
     useSendScenarioInvite();
+  const { mutateAsync: submitGuestFactor, isPending: isSubmittingGuestFactor } =
+    useSubmitGuestFactor();
+  const { mutateAsync: fetchWorkshopBySession, isPending: isFetchingWorkshop } =
+    useWorkshopBySession();
 
   const [dfError, setDfError] = useState("");
   const [customCatInput, setCustomCatInput] = useState("");
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
   const [creditError, setCreditError] = useState<CreditError | null>(null);
+  const [sentInviteEmails, setSentInviteEmails] = useState<string[]>([]);
+  const [guestContributions, setGuestContributions] = useState<
+    GuestContribution[]
+  >([]);
+  const [selectedGuestForceKeys, setSelectedGuestForceKeys] = useState<
+    string[]
+  >([]);
+  const [guestReviewError, setGuestReviewError] = useState("");
+  const [workshopSessionId, setWorkshopSessionId] = useState(() => {
+    if (typeof window === "undefined" || isInviteMode) return "";
+    return localStorage.getItem("sessionId") || "";
+  });
 
   const handleToggleCategory = (cat: string) => {
     const exists = movingFactors.find(
@@ -207,6 +249,73 @@ function NewScenarioContent() {
     }
   };
 
+  const handleStartWorkshop = async () => {
+    if (!company.name.trim()) {
+      toast.error("Please enter a company name.");
+      return;
+    }
+
+    if (!company.focalQuestion.trim()) {
+      toast.error("Please enter a focal question.");
+      return;
+    }
+
+    if (!company.horizonYear.trim()) {
+      toast.error("Please choose a horizon year.");
+      return;
+    }
+
+    if (workshopSessionId) {
+      handleContinue();
+      return;
+    }
+
+    try {
+      const response = await createWorkshop({
+        company: {
+          projectTitle: company.projectTitle,
+          name: company.name,
+          industry: company.industry,
+          summary: company.websiteUrl
+            ? `${company.companySummary}\n\nCompany Website: ${company.websiteUrl}`
+            : company.companySummary,
+          focalQuestion: company.focalQuestion,
+          horizonYear: company.horizonYear,
+        },
+        forces: [],
+      });
+
+      if (response?.sessionId) {
+        setWorkshopSessionId(response.sessionId);
+        localStorage.setItem("sessionId", response.sessionId);
+        if (response.workshopId) {
+          localStorage.setItem("workshopAnalysisId", response.workshopId);
+        }
+        toast.success("Workshop session created.");
+        setStep(3);
+      }
+    } catch (error: unknown) {
+      const message =
+        getApiErrorData(error)?.message ||
+        (error instanceof Error
+          ? error.message
+          : "Failed to create workshop session.");
+      toast.error(message);
+    }
+  };
+
+  const handleStartNewWorkshop = () => {
+    resetStore();
+    setWorkshopSessionId("");
+    setSentInviteEmails([]);
+    setGuestContributions([]);
+    setSelectedGuestForceKeys([]);
+    setGuestReviewError("");
+    setInviteEmail("");
+    setIsInviteDialogOpen(false);
+    toast.success("Ready for a new workshop.");
+  };
+
   const isStepComplete = (stepNum: number) => currentStep > stepNum;
   const isStepActive = (stepNum: number) => currentStep === stepNum;
 
@@ -218,17 +327,47 @@ function NewScenarioContent() {
     { label: "Generate Report", icon: CheckCircle2 },
   ];
 
+  const visibleSteps = isInviteMode
+    ? [{ label: "Moving Factors", icon: Zap, stepNumber: 3 }]
+    : STEPS.map((step, index) => ({ ...step, stepNumber: index + 1 }));
+  const showWorkshopHeader = currentStep === 3;
+
   const handleSendInvite = async () => {
     const email = inviteEmail.trim();
+    const sessionId = workshopSessionId;
+    const currentUserEmail = session?.user?.email?.toLowerCase();
+    const normalizedEmail = email.toLowerCase();
 
     if (!email) {
       toast.error("Please enter a guest email.");
       return;
     }
 
+    if (currentUserEmail && normalizedEmail === currentUserEmail) {
+      toast.error("You cannot invite yourself to this workshop.");
+      return;
+    }
+
+    if (!sessionId) {
+      toast.error("Please start the workshop before inviting guests.");
+      return;
+    }
+
+    if (
+      sentInviteEmails.includes(normalizedEmail) &&
+      !window.confirm(
+        "This person was already invited. Resending will invalidate their previous link. Continue?",
+      )
+    ) {
+      return;
+    }
+
     try {
-      await sendInvite(email);
-      toast.success("Invitation sent successfully.");
+      await sendInvite({ email, sessionId });
+      setSentInviteEmails((prev) =>
+        prev.includes(normalizedEmail) ? prev : [...prev, normalizedEmail],
+      );
+      toast.success(`Invitation sent to ${email}.`);
       setInviteEmail("");
       setIsInviteDialogOpen(false);
     } catch (error: unknown) {
@@ -246,48 +385,165 @@ function NewScenarioContent() {
     }
   };
 
+  const handleRefreshGuestContributions = async () => {
+    const sessionId = workshopSessionId;
+
+    if (!sessionId) {
+      setGuestReviewError(
+        "Workshop session not found. Please save your workshop first.",
+      );
+      return;
+    }
+
+    setGuestReviewError("");
+
+    try {
+      const response = await fetchWorkshopBySession(sessionId);
+      const nextContributions = response.data.guestAdd || [];
+      setGuestContributions(nextContributions);
+      setSelectedGuestForceKeys((current) =>
+        current.filter((key) =>
+          nextContributions.some((entry) =>
+            entry.forces.some(
+              (force) => getGuestForceKey(entry.email, force) === key,
+            ),
+          ),
+        ),
+      );
+    } catch (error: unknown) {
+      const message =
+        getApiErrorData(error)?.message ||
+        (error instanceof Error
+          ? error.message
+          : "Failed to refresh guest contributions.");
+      setGuestReviewError(message);
+      toast.error(message);
+    }
+  };
+
+  const handleToggleGuestForce = (
+    email: string,
+    force: string,
+    checked: boolean,
+  ) => {
+    const key = getGuestForceKey(email, force);
+    setSelectedGuestForceKeys((current) =>
+      checked ? [...current, key] : current.filter((item) => item !== key),
+    );
+  };
+
+  const getSelectedGuestForces = () =>
+    guestContributions.flatMap((entry) =>
+      entry.forces.filter((force) =>
+        selectedGuestForceKeys.includes(getGuestForceKey(entry.email, force)),
+      ),
+    );
+
+  const getMergedForcesForClassification = () => {
+    const mergedForces = movingFactors.map(formatMovingFactor);
+
+    getSelectedGuestForces().forEach((force) => {
+      if (!mergedForces.includes(force)) {
+        mergedForces.push(force);
+      }
+    });
+
+    return mergedForces;
+  };
+
+  useEffect(() => {
+    if (isInviteMode || currentStep !== 3 || classification || !workshopSessionId) {
+      return;
+    }
+
+    const interval = window.setInterval(async () => {
+      try {
+        const response = await fetchWorkshopBySession(workshopSessionId);
+        const nextContributions = response.data.guestAdd || [];
+
+        setGuestContributions(nextContributions);
+        setSelectedGuestForceKeys((current) =>
+          current.filter((key) =>
+            nextContributions.some((entry) =>
+              entry.forces.some(
+                (force) => getGuestForceKey(entry.email, force) === key,
+              ),
+            ),
+          ),
+        );
+      } catch {
+        // Manual refresh still reports errors; polling should stay quiet.
+      }
+    }, 15000);
+
+    return () => window.clearInterval(interval);
+  }, [
+    classification,
+    currentStep,
+    fetchWorkshopBySession,
+    isInviteMode,
+    workshopSessionId,
+  ]);
+
   return (
     <section className="bg-slate-50 min-h-screen px-3 py-6 font-sans sm:px-4 sm:py-10 lg:py-20">
       <div className="max-w-5xl mx-auto">
-        <div className="mb-8 flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-widest text-slate-400">
-              {isInviteMode ? "Guest invitation" : "Scenario workshop"}
-            </p>
-            <h1 className="mt-1 text-xl font-black text-[#0F172A]">
-              {isInviteMode ? "Complete invited scenario" : "New Scenario"}
-            </h1>
-            {isInviteMode && (
-              <p className="mt-1 text-sm text-slate-500">
-                Invite token verified. Your changes will be submitted with this
-                invitation.
+        {showWorkshopHeader && (
+          <div className="mb-8 flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-widest text-slate-400">
+                {isInviteMode ? "Guest invitation" : "Scenario workshop"}
               </p>
+              <h1 className="mt-1 text-xl font-black text-[#0F172A]">
+                {isInviteMode ? "Complete invited Moving Factors" : "Moving Factors"}
+              </h1>
+              {isInviteMode && (
+                <p className="mt-1 text-sm text-slate-500">
+                  Invite token verified. You can submit moving factors for this
+                  workshop.
+                </p>
+              )}
+            </div>
+
+            {!isInviteMode && (
+              <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+                <button
+                  type="button"
+                  onClick={handleStartNewWorkshop}
+                  className="inline-flex h-11 w-full items-center justify-center rounded-xl border border-slate-200 bg-white px-5 text-sm font-bold text-[#0F172A] transition hover:bg-slate-50 sm:w-auto"
+                >
+                  Start New
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsInviteDialogOpen(true)}
+                  className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#0F172A] px-5 text-sm font-bold text-white transition hover:opacity-90 sm:w-auto"
+                >
+                  <Mail className="h-4 w-4" />
+                  Invite Guest
+                </button>
+              </div>
             )}
           </div>
-
-          {!isInviteMode && (
-            <button
-              type="button"
-              onClick={() => setIsInviteDialogOpen(true)}
-              className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#0F172A] px-5 text-sm font-bold text-white transition hover:opacity-90 sm:w-auto"
-            >
-              <Mail className="h-4 w-4" />
-              Invite Guest
-            </button>
-          )}
-        </div>
+        )}
 
         <div className="mb-10 overflow-x-auto pb-8 sm:mb-16 sm:overflow-visible sm:pb-0">
-          <div className="relative flex min-w-[680px] items-center justify-between sm:min-w-0">
+          <div
+            className={`relative flex items-center justify-between sm:min-w-0 ${
+              isInviteMode ? "min-w-0" : "min-w-[680px]"
+            }`}
+          >
             <div className="absolute top-1/2 left-0 w-full h-0.5 bg-slate-200 -translate-y-1/2 z-0" />
             <div
               className="absolute top-1/2 left-0 h-0.5 bg-[#0F172A] -translate-y-1/2 z-0 transition-all duration-500 ease-in-out"
               style={{
-                width: `${((currentStep - 1) / (STEPS.length - 1)) * 100}%`,
+                width: isInviteMode
+                  ? "100%"
+                  : `${((currentStep - 1) / (STEPS.length - 1)) * 100}%`,
               }}
             />
-            {STEPS.map((step, i) => {
-              const stepNum = i + 1;
+            {visibleSteps.map((step) => {
+              const stepNum = step.stepNumber;
               const Icon = step.icon;
               const completed = isStepComplete(stepNum);
               const active = isStepActive(stepNum);
@@ -557,11 +813,21 @@ function NewScenarioContent() {
 
               <button
                 type="button"
-                onClick={handleContinue}
-                className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#0F172A] px-8 py-4 font-bold text-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl active:scale-95 sm:w-auto sm:px-10"
+                onClick={handleStartWorkshop}
+                disabled={isCreatingWorkshop}
+                className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#0F172A] px-8 py-4 font-bold text-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl active:scale-95 disabled:cursor-not-allowed disabled:opacity-70 sm:w-auto sm:px-10"
               >
-                Continue
-                <ChevronRight className="w-5 h-5" />
+                {isCreatingWorkshop ? (
+                  <>
+                    Creating...
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  </>
+                ) : (
+                  <>
+                    Start Workshop
+                    <ChevronRight className="w-5 h-5" />
+                  </>
+                )}
               </button>
             </div>
           </div>
@@ -719,6 +985,132 @@ function NewScenarioContent() {
                 )}
               </div>
 
+              {!isInviteMode && (
+                <section className="rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:p-6">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <Users className="h-5 w-5 text-[#0F172A]" />
+                        <p className="text-xs font-bold uppercase tracking-widest text-slate-400">
+                          Guest Contributions
+                        </p>
+                      </div>
+                      <p className="mt-2 text-sm font-medium leading-6 text-slate-500">
+                        Refresh guest forces, choose what to include, then
+                        proceed to AI classification with the merged list.
+                      </p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleRefreshGuestContributions}
+                      disabled={!workshopSessionId || isFetchingWorkshop}
+                      className="w-full bg-white sm:w-auto"
+                    >
+                      {isFetchingWorkshop ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <RefreshCw className="h-4 w-4" />
+                      )}
+                      Refresh
+                    </Button>
+                  </div>
+
+                  {guestReviewError && (
+                    <div className="mt-4 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm font-semibold text-red-600">
+                      {guestReviewError}
+                    </div>
+                  )}
+
+                  {guestContributions.length === 0 ? (
+                    <div className="mt-5 rounded-xl border border-dashed border-slate-200 bg-white p-8 text-center text-sm font-semibold text-slate-400">
+                      No guest contributions yet. Share the invite link and
+                      check back later.
+                    </div>
+                  ) : (
+                    <div className="mt-5 space-y-4">
+                      <div className="flex flex-wrap gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() =>
+                            setSelectedGuestForceKeys(
+                              guestContributions.flatMap((entry) =>
+                                entry.forces.map((force) =>
+                                  getGuestForceKey(entry.email, force),
+                                ),
+                              ),
+                            )
+                          }
+                          className="bg-white"
+                        >
+                          Select All
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setSelectedGuestForceKeys([])}
+                          className="bg-white"
+                        >
+                          Deselect All
+                        </Button>
+                      </div>
+
+                      {guestContributions.map((entry) => (
+                        <div
+                          key={entry.inviteId}
+                          className="rounded-xl border border-slate-200 bg-white p-4"
+                        >
+                          <p className="break-words text-sm font-black text-[#0F172A]">
+                            {entry.email} ({entry.forces.length}{" "}
+                            {entry.forces.length === 1 ? "force" : "forces"})
+                          </p>
+
+                          {entry.forces.length === 0 ? (
+                            <p className="mt-3 text-sm font-medium text-slate-400">
+                              This guest has not added any forces.
+                            </p>
+                          ) : (
+                            <div className="mt-3 space-y-3">
+                              {entry.forces.map((force) => {
+                                const key = getGuestForceKey(
+                                  entry.email,
+                                  force,
+                                );
+                                const isChecked =
+                                  selectedGuestForceKeys.includes(key);
+
+                                return (
+                                  <label
+                                    key={key}
+                                    className="flex cursor-pointer items-start gap-3 rounded-lg bg-slate-50 p-3 text-sm font-medium leading-6 text-slate-700"
+                                  >
+                                    <Checkbox
+                                      checked={isChecked}
+                                      onCheckedChange={(checked) =>
+                                        handleToggleGuestForce(
+                                          entry.email,
+                                          force,
+                                          checked === true,
+                                        )
+                                      }
+                                      className="mt-1"
+                                    />
+                                    <span className="min-w-0 flex-1 whitespace-pre-wrap break-words">
+                                      {force}
+                                    </span>
+                                  </label>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </section>
+              )}
+
               {/* Error */}
               {dfError && (
                 <div className="bg-red-50 text-red-600 px-6 py-4 rounded-2xl border border-red-100 text-sm font-bold flex items-center gap-3 animate-bounce">
@@ -731,16 +1123,18 @@ function NewScenarioContent() {
             {/* Buttons */}
             <div className="mt-8 flex flex-col-reverse gap-3 sm:mt-12 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex w-full gap-3 sm:w-auto sm:gap-4">
-                <button
-                  type="button"
-                  onClick={handleBack}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-100 px-8 py-4 font-bold text-[#0F172A] transition-all hover:bg-slate-200 active:scale-95 sm:w-auto"
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                  Back
-                </button>
+                {!isInviteMode && (
+                  <button
+                    type="button"
+                    onClick={handleBack}
+                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-100 px-8 py-4 font-bold text-[#0F172A] transition-all hover:bg-slate-200 active:scale-95 sm:w-auto"
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                    Back
+                  </button>
+                )}
 
-                {classification && (
+                {!isInviteMode && classification && (
                   <button
                     type="button"
                     onClick={() => {
@@ -774,13 +1168,56 @@ function NewScenarioContent() {
 
                   setDfError("");
 
+                  if (isInviteMode) {
+                    if (!inviteToken) {
+                      setDfError(
+                        "Invitation token is missing. Please reopen the invite link.",
+                      );
+                      return;
+                    }
+
+                    try {
+                      await Promise.all(
+                        movingFactors.map((factor) =>
+                          submitGuestFactor({
+                            token: inviteToken,
+                            data: {
+                              factor: `${factor.category}: ${factor.description.trim()}`,
+                            },
+                          }),
+                        ),
+                      );
+
+                      toast.success("Moving factors saved successfully.");
+                    } catch (err: unknown) {
+                      const apiErrorData = getApiErrorData(err);
+                      const message =
+                        apiErrorData?.message ||
+                        (err instanceof Error
+                          ? err.message
+                          : "Failed to save moving factors.");
+
+                      setDfError(message);
+                    }
+
+                    return;
+                  }
+
                   // If we already have classification, it's already showing inline
                   if (classification) {
                     return;
                   }
 
+                  if (!workshopSessionId) {
+                    setDfError(
+                      "Workshop session not found. Please go back and start the workshop first.",
+                    );
+                    return;
+                  }
+
                   // 2) Get full data
                   const payload = {
+                    sessionId: workshopSessionId,
                     company: {
                       projectTitle: company.projectTitle,
                       name: company.name,
@@ -788,12 +1225,11 @@ function NewScenarioContent() {
                       summary: company.websiteUrl
                         ? `${company.companySummary}\n\nCompany Website: ${company.websiteUrl}`
                         : company.companySummary,
+                      focalQuestion: company.focalQuestion,
+                      horizonYear: company.horizonYear,
                     },
                     focalQuestion: company.focalQuestion,
-                    forces: movingFactors.map(
-                      (f) =>
-                        `${f.category}: ${f.description} ..... ${f.category}`,
-                    ),
+                    forces: getMergedForcesForClassification(),
                     conversationHistory: conversationHistory,
                   };
 
@@ -807,7 +1243,14 @@ function NewScenarioContent() {
                     const response = await classifyWorker(payload);
                     console.log("Successfully submitted data to API.");
                     if (response?.sessionId) {
+                      setWorkshopSessionId(response.sessionId);
                       localStorage.setItem("sessionId", response.sessionId);
+                    }
+                    if (response?.workshopAnalysisId) {
+                      localStorage.setItem(
+                        "workshopAnalysisId",
+                        response.workshopAnalysisId,
+                      );
                     }
                     if (response?.data) {
                       // Update History
@@ -857,17 +1300,19 @@ function NewScenarioContent() {
                     }
                   }
                 }}
-                disabled={isClassifying}
+                disabled={isClassifying || isSubmittingGuestFactor}
                 className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#0F172A] px-8 py-4 font-bold text-white shadow-lg shadow-blue-900/10 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl active:scale-95 disabled:cursor-not-allowed disabled:opacity-70 sm:w-auto sm:px-10"
               >
-                {isClassifying ? (
+                {isClassifying || isSubmittingGuestFactor ? (
                   <>
-                    Processing...
+                    {isInviteMode ? "Saving..." : "Processing..."}
                     <Loader2 className="w-5 h-5 animate-spin" />
                   </>
                 ) : (
                   <>
-                    Add Moving Factors
+                    {isInviteMode
+                      ? "Save Moving Factors"
+                      : "Proceed to Classification"}
                     <Zap className="w-5 h-5" />
                   </>
                 )}
@@ -880,7 +1325,6 @@ function NewScenarioContent() {
         {currentStep === 3 && classification && (
           <ForceClassificationView
             fullResponse={{
-      
               success: true,
               data: classification,
               history: conversationHistory,

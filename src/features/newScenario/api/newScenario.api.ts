@@ -15,11 +15,28 @@ import {
   WindtunnelResponse,
   ReportPayload,
   ReportResponse,
+  GuestFactorPayload,
+  GuestFactorResponse,
+  GuestContribution,
+  CompanyInfo,
+  CreateWorkshopPayload,
+  CreateWorkshopResponse,
 } from "../types/newScenario.types";
+
+export type InviteWorkshopInfo = {
+  _id: string;
+  sessionId: string;
+  company?: Partial<CompanyInfo> & {
+    summary?: string;
+  };
+  forces?: string[];
+  guestAdd?: GuestContribution[];
+};
 
 export type InviteInfo = {
   _id: string;
   ownerId: string;
+  workshopAnalysisId?: InviteWorkshopInfo;
   inviteEmail: string;
   token: string;
   createdAt?: string;
@@ -33,10 +50,26 @@ export type InviteResponse = {
   data: InviteInfo;
 };
 
-export const sendScenarioInvite = async (
-  email: string,
-): Promise<InviteResponse> => {
-  const response = await axiosInstance.post("/invite/send", { email });
+export type SendScenarioInvitePayload = {
+  email: string;
+  sessionId: string;
+};
+
+export const sendScenarioInvite = async ({
+  email,
+  sessionId,
+}: SendScenarioInvitePayload): Promise<InviteResponse> => {
+  const response = await axiosInstance.post("/invite/send", {
+    email,
+    sessionId,
+  });
+  return response.data;
+};
+
+export const createWorkshopSession = async (
+  data: CreateWorkshopPayload,
+): Promise<CreateWorkshopResponse> => {
+  const response = await axiosInstance.post("/workshop/create", data);
   return response.data;
 };
 
@@ -44,6 +77,56 @@ export const getScenarioInvite = async (
   token: string,
 ): Promise<InviteResponse> => {
   const response = await axiosInstance.get(`/invite/invite/${token}`);
+  return response.data;
+};
+
+export const submitGuestFactor = async ({
+  token,
+  data,
+}: {
+  token: string;
+  data: GuestFactorPayload;
+}): Promise<GuestFactorResponse> => {
+  const response = await axiosInstance.post(`/workshop/guest/${token}`, data);
+  return response.data;
+};
+
+export const deleteGuestFactor = async ({
+  token,
+  data,
+}: {
+  token: string;
+  data: GuestFactorPayload;
+}): Promise<GuestFactorResponse> => {
+  const response = await axiosInstance.delete(`/workshop/guest/${token}`, {
+    data,
+  });
+  return response.data;
+};
+
+export type WorkshopBySessionResponse = {
+  success: boolean;
+  message?: string;
+  data: {
+    _id: string;
+    sessionId: string;
+    company?: {
+      projectTitle?: string;
+      name?: string;
+      industry?: string;
+      summary?: string;
+      focalQuestion?: string;
+      horizonYear?: string;
+    };
+    forces?: string[];
+    guestAdd?: GuestContribution[];
+  };
+};
+
+export const getWorkshopBySession = async (
+  sessionId: string,
+): Promise<WorkshopBySessionResponse> => {
+  const response = await axiosInstance.get(`/workshop/history/${sessionId}`);
   return response.data;
 };
 

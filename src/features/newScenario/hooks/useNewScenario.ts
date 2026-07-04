@@ -7,7 +7,13 @@ import {
   postWindtunnel,
   exportReport,
   sendScenarioInvite,
+  submitGuestFactor,
+  deleteGuestFactor,
+  getWorkshopBySession,
+  createWorkshopSession,
   InviteResponse,
+  SendScenarioInvitePayload,
+  WorkshopBySessionResponse,
 } from "../api/newScenario.api";
 import {
   AxesPayload,
@@ -22,6 +28,10 @@ import {
   WindtunnelResponse,
   ReportPayload,
   ReportResponse,
+  GuestFactorPayload,
+  GuestFactorResponse,
+  CreateWorkshopPayload,
+  CreateWorkshopResponse,
 } from "../types/newScenario.types";
 
 // POST /workshop/classify
@@ -32,11 +42,52 @@ export const useClassifyWorkshop = () => {
   });
 };
 
+// POST /workshop/create
+
+export const useCreateWorkshopSession = () => {
+  return useMutation<CreateWorkshopResponse, Error, CreateWorkshopPayload>({
+    mutationFn: (data: CreateWorkshopPayload) => createWorkshopSession(data),
+  });
+};
+
 // POST /invite/send
 
 export const useSendScenarioInvite = () => {
-  return useMutation<InviteResponse, Error, string>({
-    mutationFn: (email: string) => sendScenarioInvite(email),
+  return useMutation<InviteResponse, Error, SendScenarioInvitePayload>({
+    mutationFn: (payload: SendScenarioInvitePayload) =>
+      sendScenarioInvite(payload),
+  });
+};
+
+// POST /workshop/guest/:token
+
+export const useSubmitGuestFactor = () => {
+  return useMutation<
+    GuestFactorResponse,
+    Error,
+    { token: string; data: GuestFactorPayload }
+  >({
+    mutationFn: ({ token, data }) => submitGuestFactor({ token, data }),
+  });
+};
+
+// DELETE /workshop/guest/:token
+
+export const useDeleteGuestFactor = () => {
+  return useMutation<
+    GuestFactorResponse,
+    Error,
+    { token: string; data: GuestFactorPayload }
+  >({
+    mutationFn: ({ token, data }) => deleteGuestFactor({ token, data }),
+  });
+};
+
+// GET /workshop/history/:sessionId
+
+export const useWorkshopBySession = () => {
+  return useMutation<WorkshopBySessionResponse, Error, string>({
+    mutationFn: (sessionId: string) => getWorkshopBySession(sessionId),
   });
 };
 

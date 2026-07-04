@@ -130,7 +130,7 @@ function VerifyEmailForm() {
           </p>
           <button
             onClick={() => router.push("/login")}
-            className="px-10 py-3 border-2 border-[#0F172A] text-[#0F172A] cursor-pointer rounded-[8px] font-bold hover:bg-[#0F172A] hover:text-white transition-all duration-300 flex items-center gap-2"
+            className="px-10 py-3 border-2 border-[#0F172A] text-[#0F172A] cursor-pointer rounded-[8px] font-bold hover:bg-[#0F172A] hover:text-white transition-all duration-300 flex items-center gap-2 cursor-pointer"
           >
             <ArrowLeft size={16} />
             BACK TO LOG IN
@@ -210,7 +210,7 @@ function VerifyEmailForm() {
 
           <button
             onClick={() => router.push("/login")}
-            className="lg:hidden mt-6 text-[#0F172A] font-bold text-sm"
+            className="lg:hidden mt-6 text-[#0F172A] font-bold text-sm cursor-pointer"
           >
             Back to Log In
           </button>

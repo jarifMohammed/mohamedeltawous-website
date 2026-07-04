@@ -25,12 +25,14 @@ export interface DrivingForce {
 }
 
 export interface ClassifyPayload {
-  
+  sessionId?: string;
   company: {
     projectTitle: string;
     name: string;
     industry: string;
     summary: string;
+    focalQuestion?: string;
+    horizonYear?: string;
   };
   focalQuestion: string;
   forces: string[];
@@ -51,6 +53,7 @@ export interface UncertaintyItem {
 
 export interface ClassifyResponse {
   sessionId?: string;
+  workshopAnalysisId?: string;
   success: boolean;
   data: {
     
@@ -58,6 +61,43 @@ export interface ClassifyResponse {
     uncertainties: (string | UncertaintyItem)[];
   };
   history: { role: string; content: string }[];
+}
+
+export interface CreateWorkshopPayload {
+  company: {
+    projectTitle?: string;
+    name: string;
+    industry?: string;
+    summary?: string;
+    focalQuestion: string;
+    horizonYear: string;
+  };
+  forces?: string[];
+}
+
+export interface CreateWorkshopResponse {
+  success: boolean;
+  message: string;
+  sessionId: string;
+  workshopId: string;
+}
+
+export interface GuestFactorPayload {
+  factor: string;
+}
+
+export interface GuestContribution {
+  inviteId: string;
+  email: string;
+  forces: string[];
+  addedAt?: string;
+}
+
+export interface GuestFactorResponse {
+  success: boolean;
+  message: string;
+  statusCode?: number;
+  data?: GuestContribution[];
 }
 
 export interface AxesPayload {
