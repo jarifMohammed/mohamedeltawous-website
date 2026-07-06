@@ -130,6 +130,13 @@ export const getWorkshopBySession = async (
   return response.data;
 };
 
+export const getAllWorkshopBySession = async (
+  sessionId: string,
+): Promise<WorkshopBySessionResponse> => {
+  const response = await axiosInstance.get(`/workshop/all/${sessionId}`);
+  return response.data;
+};
+
 // POST /workshop/classify
 
 export const classifyWorkshop = async (

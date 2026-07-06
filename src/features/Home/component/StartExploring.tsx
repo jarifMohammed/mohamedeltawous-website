@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { useState, type MouseEvent } from "react";
 import { useSession } from "next-auth/react";
+import { MousePointer2 } from "lucide-react";
 import AuthRequiredDialog from "@/components/shared/AuthRequiredDialog";
 
 export default function StartExploring() {
@@ -55,45 +56,45 @@ export default function StartExploring() {
             <Link
               href={scenarioHref}
               onClick={handleScenarioClick}
-              className="inline-flex h-[52px] items-center justify-center rounded-xl bg-[#0F172A] px-8 text-[15px] font-bold text-white transition hover:opacity-90 shadow-xl shadow-blue-900/10 cursor-pointer"
+              className="relative inline-flex h-[52px] cursor-default items-center justify-center rounded-xl bg-[#0F172A] px-8 text-[15px] font-bold text-white shadow-xl shadow-blue-900/10 transition hover:-translate-y-0.5 hover:shadow-2xl active:scale-95"
             >
-              Start Scenario Analysis
-            </Link>
-            <motion.div
-              className="absolute pointer-events-none z-20"
-              initial={{ x: 60, y: 60, opacity: 0 }}
-              animate={{
-                x: [60, 35, 35, 60],
-                y: [60, 14, 14, 60],
-                opacity: [0, 1, 1, 0],
-                scale: [1, 1, 0.88, 1],
-              }}
-              transition={{
-                duration: 3.5,
-                repeat: Infinity,
-                repeatDelay: 0.8,
-                ease: "easeInOut",
-              }}
-            >
-              {/* Exact Pointer Hand Cursor SVG */}
-              <svg
-                width="35"
-                height="35"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                className="drop-shadow-[0_3px_5px_rgba(0,0,0,0.25)]"
+              <span className="relative z-10">Start Scenario Analysis</span>
+              <motion.span
+                className="pointer-events-none absolute z-20 text-white drop-shadow-[0_3px_5px_rgba(0,0,0,0.28)]"
+                initial={{ x: 76, y: 42, opacity: 0 }}
+                animate={{
+                  x: [76, 38, 38, 76],
+                  y: [42, 18, 18, 42],
+                  opacity: [0, 1, 1, 0],
+                  scale: [1, 1, 0.9, 1],
+                }}
+                transition={{
+                  duration: 3.2,
+                  repeat: Infinity,
+                  repeatDelay: 0.8,
+                  ease: "easeInOut",
+                }}
               >
-                <path
-                  d="M8.5 11V3.5a1.5 1.5 0 0 1 3 0V11h.5a1.5 1.5 0 0 1 3 0h.5a1.5 1.5 0 0 1 3 0h.5a1.5 1.5 0 0 1 1.5 1.5v4c0 3.5-2.5 6-6 6H12c-2.5 0-4.5-1.5-5.5-3.5L4.1 14.2a1.2 1.2 0 0 1 .4-1.6 1.2 1.2 0 0 1 1.6.4l1.4 2.5V11h1z"
-                  fill="white"
-                  stroke="black"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
+                <MousePointer2
+                  size={30}
+                  strokeWidth={2.4}
+                  className="-rotate-12 fill-white/95 text-[#0F172A]"
                 />
-              </svg>
-            </motion.div>
+                <motion.span
+                  className="absolute -right-1 -top-1 h-3 w-3 rounded-full border border-white/80 bg-sky-300/80"
+                  animate={{
+                    scale: [0.6, 1.8, 0.6],
+                    opacity: [0, 0.75, 0],
+                  }}
+                  transition={{
+                    duration: 3.2,
+                    repeat: Infinity,
+                    repeatDelay: 0.8,
+                    ease: "easeInOut",
+                  }}
+                />
+              </motion.span>
+            </Link>
           </div>
         </div>
       </div>

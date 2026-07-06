@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import ParticlesBackground from "@/components/shared/ParticlesBackground";
 
 // ======================
 // Validation Schemas
@@ -178,13 +179,19 @@ function AnimatedAuth() {
             stiffness: 100,
             damping: 20,
           }}
-          className="absolute top-0 left-0 w-1/2 h-full bg-[#DEF0FA] z-20 hidden lg:flex flex-col items-center justify-center text-white p-12 text-center"
+          className="absolute top-0 left-0 w-1/2 h-full bg-secondary z-20 hidden lg:flex flex-col items-center justify-center text-white p-12 text-center overflow-hidden"
         >
+          {/* Dotted particles background */}
+          <div className="absolute inset-0 z-0 pointer-events-none">
+            <ParticlesBackground id="auth-particles" />
+          </div>
+
           <motion.div
             key={isLogin ? "signup-txt" : "login-txt"}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
+            className="relative z-10"
           >
             <h2 className="text-4xl font-bold mb-4 text-[#0F172A]">
               {isLogin ? "Hello, Chief!" : "Welcome Back!"}

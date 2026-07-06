@@ -178,7 +178,7 @@ export default function Banner() {
               <Link
                 href={scenarioHref}
                 onClick={handleScenarioClick}
-                className="inline-flex h-[52px] items-center justify-center rounded-xl bg-[#0F172A] px-8 text-[15px] font-bold text-white transition hover:opacity-90 shadow-xl shadow-blue-900/10 cursor-pointer"
+                className="inline-flex h-[52px] cursor-default items-center justify-center rounded-xl bg-[#0F172A] px-8 text-[15px] font-bold text-white shadow-xl shadow-blue-900/10 transition hover:-translate-y-0.5 hover:shadow-2xl active:scale-95"
               >
                 Start Scenario Analysis
               </Link>

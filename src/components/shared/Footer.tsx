@@ -138,6 +138,9 @@ export default function Footer() {
             <Link href="/privacy" className="hover:text-[#1f2937]">
               Privacy Policy
             </Link>
+            <Link href="/refund" className="hover:text-[#1f2937]">
+              Refund Policy
+            </Link>
             <Link href="/terms" className="hover:text-[#1f2937]">
               Terms of Service
             </Link>

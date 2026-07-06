@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import ParticlesBackground from "@/components/shared/ParticlesBackground";
 
 const verifyEmailSchema = z.object({
   otp: z
@@ -120,21 +121,28 @@ function VerifyEmailForm() {
   return (
     <section className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-6 sm:p-6">
       <div className="relative w-full max-w-6xl bg-white rounded-3xl lg:rounded-[40px] shadow-2xl overflow-hidden min-h-0 lg:min-h-[700px] flex border border-slate-100">
-        <div className="absolute top-0 left-0 w-1/2 h-full bg-[#DEF0FA] z-20 hidden lg:flex flex-col items-center justify-center p-12 text-center">
-          <Mail className="mb-6 text-[#0F172A]" size={48} />
-          <h2 className="text-4xl font-bold mb-4 text-[#0F172A]">
-            Verify Email
-          </h2>
-          <p className="text-[#475569] mb-8 leading-relaxed max-w-sm">
-            We sent a verification code to your email. Enter it here to activate your account.
-          </p>
-          <button
-            onClick={() => router.push("/login")}
-            className="px-10 py-3 border-2 border-[#0F172A] text-[#0F172A] cursor-pointer rounded-[8px] font-bold hover:bg-[#0F172A] hover:text-white transition-all duration-300 flex items-center gap-2 cursor-pointer"
-          >
-            <ArrowLeft size={16} />
-            BACK TO LOG IN
-          </button>
+        <div className="absolute top-0 left-0 w-1/2 h-full bg-secondary z-20 hidden lg:flex flex-col items-center justify-center p-12 text-center overflow-hidden">
+          {/* Dotted particles background */}
+          <div className="absolute inset-0 z-0 pointer-events-none">
+            <ParticlesBackground id="verify-email-particles" />
+          </div>
+
+          <div className="relative z-10 flex flex-col items-center justify-center">
+            <Mail className="mb-6 text-[#0F172A]" size={48} />
+            <h2 className="text-4xl font-bold mb-4 text-[#0F172A]">
+              Verify Email
+            </h2>
+            <p className="text-[#475569] mb-8 leading-relaxed max-w-sm">
+              We sent a verification code to your email. Enter it here to activate your account.
+            </p>
+            <button
+              onClick={() => router.push("/login")}
+              className="px-10 py-3 border-2 border-[#0F172A] text-[#0F172A] cursor-pointer rounded-[8px] font-bold hover:bg-[#0F172A] hover:text-white transition-all duration-300 flex items-center gap-2 cursor-pointer"
+            >
+              <ArrowLeft size={16} />
+              BACK TO LOG IN
+            </button>
+          </div>
         </div>
 
         <div className="w-full lg:w-1/2 lg:ml-auto px-5 py-8 sm:p-10 md:p-16 flex flex-col justify-center lg:min-h-[700px]">

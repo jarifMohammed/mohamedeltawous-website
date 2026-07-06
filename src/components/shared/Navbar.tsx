@@ -160,7 +160,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Globe, Menu, X } from "lucide-react";
+import { Globe, Menu, MousePointer2, X } from "lucide-react";
 import { useState, useEffect, type ChangeEvent, type MouseEvent } from "react";
 import { motion } from "framer-motion";
 import { useSession } from "next-auth/react";
@@ -497,51 +497,49 @@ export default function Navbar() {
             </Link>
           )}
 
-       <MotionLink
-      href={scenarioHref}
-      onClick={handleScenarioClick}
-      className="group relative hidden sm:inline-flex rounded-lg bg-[#0f172a] px-5 py-2.5 text-[14px] md:px-6 md:py-3.5 md:text-[15px] font-semibold text-white transition hover:opacity-90 shadow-lg shadow-gray-200"
-      whileHover={{ y: -2 }}
-    >
-      <span>Start Scenario Analysis</span>
-
-      {/* অ্যানিমেটেড হ্যান্ড পয়েন্টার কার্সর */}
-      <motion.div
-        className="absolute pointer-events-none z-20"
-        initial={{ x: 60, y: 60, opacity: 0 }}
-        animate={{
-          x: [60, 35, 35, 60], 
-          y: [60, 14, 14, 60],     
-          opacity: [0, 1, 1, 0], 
-          scale: [1, 1, 0.88, 1],  
-        }}
-        transition={{
-          duration: 3.5,
-          repeat: Infinity,
-          repeatDelay: 0.8,
-          ease: "easeInOut",
-        }}
-      >
-        {/* Exact Pointer Hand Cursor SVG */}
-        <svg
-          width="35"
-          height="35"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className="drop-shadow-[0_3px_5px_rgba(0,0,0,0.25)]"
-        >
-          <path
-            d="M8.5 11V3.5a1.5 1.5 0 0 1 3 0V11h.5a1.5 1.5 0 0 1 3 0h.5a1.5 1.5 0 0 1 3 0h.5a1.5 1.5 0 0 1 1.5 1.5v4c0 3.5-2.5 6-6 6H12c-2.5 0-4.5-1.5-5.5-3.5L4.1 14.2a1.2 1.2 0 0 1 .4-1.6 1.2 1.2 0 0 1 1.6.4l1.4 2.5V11h1z"
-            fill="white"
-            stroke="black"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </motion.div>
-    </MotionLink>
+          <MotionLink
+            href={scenarioHref}
+            onClick={handleScenarioClick}
+            className="group relative hidden cursor-default rounded-lg bg-[#0f172a] px-5 py-2.5 text-[14px] font-semibold text-white shadow-lg shadow-gray-200 transition hover:opacity-95 sm:inline-flex md:px-6 md:py-3.5 md:text-[15px]"
+            whileHover={{ y: -2 }}
+          >
+            <span className="relative z-10">Start Scenario Analysis</span>
+            <motion.span
+              className="pointer-events-none absolute z-20 text-white drop-shadow-[0_3px_5px_rgba(0,0,0,0.28)]"
+              initial={{ x: 64, y: 32, opacity: 0 }}
+              animate={{
+                x: [64, 30, 30, 64],
+                y: [32, 12, 12, 32],
+                opacity: [0, 1, 1, 0],
+                scale: [1, 1, 0.9, 1],
+              }}
+              transition={{
+                duration: 3.2,
+                repeat: Infinity,
+                repeatDelay: 0.8,
+                ease: "easeInOut",
+              }}
+            >
+              <MousePointer2
+                size={25}
+                strokeWidth={2.4}
+                className="-rotate-12 fill-white/95 text-[#0F172A]"
+              />
+              <motion.span
+                className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full border border-white/80 bg-sky-300/80"
+                animate={{
+                  scale: [0.6, 1.8, 0.6],
+                  opacity: [0, 0.75, 0],
+                }}
+                transition={{
+                  duration: 3.2,
+                  repeat: Infinity,
+                  repeatDelay: 0.8,
+                  ease: "easeInOut",
+                }}
+              />
+            </motion.span>
+          </MotionLink>
 
           {/* Mobile Menu Button */}
           <button

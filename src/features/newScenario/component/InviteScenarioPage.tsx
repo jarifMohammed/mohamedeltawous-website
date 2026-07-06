@@ -5,10 +5,12 @@ import { Check, Loader2, Plus, Trash2, Zap } from "lucide-react";
 import { toast } from "sonner";
 import {
   deleteGuestFactor,
+  getAllWorkshopBySession,
   getScenarioInvite,
   submitGuestFactor,
   type InviteInfo,
 } from "../api/newScenario.api";
+import type { GuestContribution } from "../types/newScenario.types";
 
 const PREDEFINED_CATEGORIES = [
   "Society",
@@ -33,6 +35,8 @@ type GuestMovingFactor = {
   id: string;
   category: string;
   description: string;
+  inviteId: string;
+  email: string;
   savedForce?: string;
 };
 
@@ -77,7 +81,10 @@ function getApiMessage(error: unknown, fallback = "Something went wrong.") {
   return fallback;
 }
 
-function parseSavedForce(force: string): GuestMovingFactor {
+function parseSavedForce(
+  force: string,
+  owner: Pick<GuestContribution, "inviteId" | "email">,
+): GuestMovingFactor {
   const [rawCategory, ...rest] = force.split(":");
   const category = rawCategory?.trim() || "Custom Factor";
   const description = rest.join(":").trim() || force;
@@ -86,6 +93,8 @@ function parseSavedForce(force: string): GuestMovingFactor {
     id: createId(),
     category,
     description,
+    inviteId: owner.inviteId,
+    email: owner.email,
     savedForce: force,
   };
 }
@@ -108,6 +117,41 @@ export default function InviteScenarioPage({ token }: { token: string }) {
 
   const cleanToken = useMemo(() => token?.trim(), [token]);
 
+  const currentGuest = useMemo(() => {
+    if (state.status !== "success") return null;
+
+    return {
+      inviteId: state.invite._id,
+      email: state.invite.inviteEmail,
+    };
+  }, [state]);
+
+  const syncGuestContributions = (guestAdd?: GuestContribution[]) => {
+    const normalized = guestAdd || [];
+
+    setMovingFactors(
+      normalized.flatMap((entry) =>
+        (entry.forces || []).map((force) =>
+          parseSavedForce(force, {
+            inviteId: entry.inviteId,
+            email: entry.email,
+          }),
+        ),
+      ),
+    );
+  };
+
+  const refreshSharedContributions = async (sessionId?: string) => {
+    if (!sessionId) return;
+
+    const workshopResponse = await getAllWorkshopBySession(sessionId);
+    syncGuestContributions(workshopResponse.data?.guestAdd || []);
+  };
+
+  const isCurrentGuestFactor = (factor: GuestMovingFactor) =>
+    factor.inviteId === currentGuest?.inviteId ||
+    factor.email.toLowerCase() === currentGuest?.email.toLowerCase();
+
   useEffect(() => {
     let isMounted = true;
 
@@ -127,17 +171,15 @@ export default function InviteScenarioPage({ token }: { token: string }) {
         if (!isMounted) return;
 
         if (response.success && response.data) {
-          const guestEntry =
-            response.data.workshopAnalysisId?.guestAdd?.find(
-              (entry) => entry.inviteId === response.data._id,
-            ) ||
-            response.data.workshopAnalysisId?.guestAdd?.find(
-              (entry) =>
-                entry.email?.toLowerCase() ===
-                response.data.inviteEmail?.toLowerCase(),
-            );
+          const sessionId = response.data.workshopAnalysisId?.sessionId;
+          let guestAdd = response.data.workshopAnalysisId?.guestAdd || [];
 
-          setMovingFactors((guestEntry?.forces || []).map(parseSavedForce));
+          if (sessionId) {
+            const workshopResponse = await getAllWorkshopBySession(sessionId);
+            guestAdd = workshopResponse.data?.guestAdd || guestAdd;
+          }
+
+          syncGuestContributions(guestAdd);
           setState({
             status: "success",
             invite: response.data,
@@ -172,15 +214,13 @@ export default function InviteScenarioPage({ token }: { token: string }) {
   const context = state.invite?.workshopAnalysisId;
   const company = context?.company;
 
-  const syncSavedForces = (forces?: string[]) => {
-    if (forces) {
-      setMovingFactors(forces.map(parseSavedForce));
-    }
-  };
-
   const handleToggleCategory = (cat: string) => {
+    if (!currentGuest) return;
+
     const exists = movingFactors.find(
-      (factor) => factor.category.toLowerCase() === cat.toLowerCase(),
+      (factor) =>
+        factor.inviteId === currentGuest.inviteId &&
+        factor.category.toLowerCase() === cat.toLowerCase(),
     );
 
     if (exists) {
@@ -190,18 +230,28 @@ export default function InviteScenarioPage({ token }: { token: string }) {
 
     setMovingFactors((current) => [
       ...current,
-      { id: createId(), category: cat, description: "" },
+      {
+        id: createId(),
+        category: cat,
+        description: "",
+        inviteId: currentGuest.inviteId,
+        email: currentGuest.email,
+      },
     ]);
     setDfError("");
   };
 
   const handleAddCustomCategory = () => {
+    if (!currentGuest) return;
+
     const catName = customCatInput.trim();
 
     if (!catName) return;
 
     const exists = movingFactors.find(
-      (factor) => factor.category.toLowerCase() === catName.toLowerCase(),
+      (factor) =>
+        factor.inviteId === currentGuest.inviteId &&
+        factor.category.toLowerCase() === catName.toLowerCase(),
     );
 
     if (exists) {
@@ -211,7 +261,13 @@ export default function InviteScenarioPage({ token }: { token: string }) {
 
     setMovingFactors((current) => [
       ...current,
-      { id: createId(), category: catName, description: "" },
+      {
+        id: createId(),
+        category: catName,
+        description: "",
+        inviteId: currentGuest.inviteId,
+        email: currentGuest.email,
+      },
     ]);
     setCustomCatInput("");
     setDfError("");
@@ -261,17 +317,17 @@ export default function InviteScenarioPage({ token }: { token: string }) {
 
     setDeletingForce(factor.id);
     try {
-      const response = await deleteGuestFactor({
+      if (!isCurrentGuestFactor(factor)) {
+        toast.error("You can only remove your own moving factors.");
+        return;
+      }
+
+      await deleteGuestFactor({
         token: cleanToken,
         data: { factor: factor.savedForce },
       });
-      const guestEntry = response.data?.find(
-        (entry) =>
-          entry.inviteId === state.invite?._id ||
-          entry.email?.toLowerCase() === state.invite?.inviteEmail.toLowerCase(),
-      );
 
-      syncSavedForces(guestEntry?.forces || []);
+      await refreshSharedContributions(context?.sessionId);
       toast.success("Moving factor removed.");
     } catch (error: unknown) {
       toast.error(getApiMessage(error, "Failed to remove this moving factor."));
@@ -286,7 +342,9 @@ export default function InviteScenarioPage({ token }: { token: string }) {
       return;
     }
 
-    const missingDesc = movingFactors.find(
+    const editableFactors = movingFactors.filter(isCurrentGuestFactor);
+
+    const missingDesc = editableFactors.find(
       (factor) => !factor.description.trim(),
     );
     if (missingDesc) {
@@ -294,16 +352,22 @@ export default function InviteScenarioPage({ token }: { token: string }) {
       return;
     }
 
-    const formattedForces = movingFactors.map(formatGuestForce);
-    const duplicateForce = formattedForces.find(
-      (force, index) =>
-        formattedForces.findIndex(
-          (item) => item.toLowerCase() === force.toLowerCase(),
-        ) !== index,
-    );
+    const duplicateForce = editableFactors
+      .map((factor) => ({
+        force: formatGuestForce(factor),
+        owner: factor.email.toLowerCase(),
+      }))
+      .find(
+        (entry, index, all) =>
+          all.findIndex(
+            (item) =>
+              item.owner === entry.owner &&
+              item.force.toLowerCase() === entry.force.toLowerCase(),
+          ) !== index,
+      );
 
     if (duplicateForce) {
-      setDfError(`You've already added "${duplicateForce}".`);
+      setDfError(`"${duplicateForce.force}" is already in the list.`);
       return;
     }
 
@@ -311,9 +375,7 @@ export default function InviteScenarioPage({ token }: { token: string }) {
     setIsSaving(true);
 
     try {
-      let latestForces: string[] | undefined;
-
-      for (const factor of movingFactors) {
+      for (const factor of editableFactors) {
         const nextForce = formatGuestForce(factor);
 
         if (factor.savedForce === nextForce) {
@@ -327,20 +389,13 @@ export default function InviteScenarioPage({ token }: { token: string }) {
           });
         }
 
-        const response = await submitGuestFactor({
+        await submitGuestFactor({
           token: cleanToken,
           data: { factor: nextForce },
         });
-        const guestEntry = response.data?.find(
-          (entry) =>
-            entry.inviteId === state.invite?._id ||
-            entry.email?.toLowerCase() ===
-              state.invite?.inviteEmail.toLowerCase(),
-        );
-        latestForces = guestEntry?.forces;
       }
 
-      syncSavedForces(latestForces || formattedForces);
+      await refreshSharedContributions(context?.sessionId);
       toast.success("Moving factors saved successfully.");
     } catch (error: unknown) {
       setDfError(getApiMessage(error, "Failed to save moving factors."));
@@ -416,6 +471,7 @@ export default function InviteScenarioPage({ token }: { token: string }) {
                 {PREDEFINED_CATEGORIES.map((cat) => {
                   const isSelected = movingFactors.some(
                     (factor) =>
+                      factor.inviteId === currentGuest?.inviteId &&
                       factor.category.toLowerCase() === cat.toLowerCase(),
                   );
 
@@ -497,51 +553,68 @@ export default function InviteScenarioPage({ token }: { token: string }) {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 gap-6">
-                  {movingFactors.map((factor) => (
-                    <div
-                      key={factor.id}
-                      className="group relative rounded-2xl border-2 border-slate-50 bg-white p-5 shadow-sm transition-all duration-500 animate-in fade-in slide-in-from-top-4 hover:border-blue-50 hover:shadow-2xl hover:shadow-slate-200/50 sm:rounded-3xl sm:p-8"
-                    >
-                      <div className="mb-6 flex items-start justify-between gap-3">
-                        <div className="flex min-w-0 items-center gap-3">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#DEF0FA]">
-                            <Zap className="h-5 w-5 text-[#0F172A]" />
+                  {movingFactors.map((factor) => {
+                    const editable = isCurrentGuestFactor(factor);
+
+                    return (
+                      <div
+                        key={factor.id}
+                        className="group relative rounded-2xl border-2 border-slate-50 bg-white p-5 shadow-sm transition-all duration-500 animate-in fade-in slide-in-from-top-4 hover:border-blue-50 hover:shadow-2xl hover:shadow-slate-200/50 sm:rounded-3xl sm:p-8"
+                      >
+                        <div className="mb-6 flex items-start justify-between gap-3">
+                          <div className="flex min-w-0 items-center gap-3">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#DEF0FA]">
+                              <Zap className="h-5 w-5 text-[#0F172A]" />
+                            </div>
+                            <label
+                              htmlFor={`desc-${factor.id}`}
+                              className="break-words text-lg font-black tracking-tight text-[#0F172A] sm:text-xl"
+                            >
+                              {factor.category}
+                            </label>
+                            <p className="text-xs font-semibold text-slate-400">
+                              {editable
+                                ? "Added by you"
+                                : `Added by ${factor.email}`}
+                            </p>
                           </div>
-                          <label
-                            htmlFor={`desc-${factor.id}`}
-                            className="break-words text-lg font-black tracking-tight text-[#0F172A] sm:text-xl"
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveFactor(factor)}
+                            disabled={
+                              !editable ||
+                              deletingForce === factor.id ||
+                              isSaving
+                            }
+                            className="cursor-pointer rounded-xl bg-slate-50 p-2 text-slate-400 transition-all hover:bg-red-50 hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-60"
+                            title="Remove factor"
                           >
-                            {factor.category}
-                          </label>
+                            {deletingForce === factor.id ? (
+                              <Loader2 className="h-5 w-5 animate-spin" />
+                            ) : (
+                              <Trash2 className="h-5 w-5" />
+                            )}
+                          </button>
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveFactor(factor)}
-                          disabled={deletingForce === factor.id || isSaving}
-                          className="cursor-pointer rounded-xl bg-slate-50 p-2 text-slate-400 transition-all hover:bg-red-50 hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-60"
-                          title="Remove factor"
-                        >
-                          {deletingForce === factor.id ? (
-                            <Loader2 className="h-5 w-5 animate-spin" />
-                          ) : (
-                            <Trash2 className="h-5 w-5" />
-                          )}
-                        </button>
+                        <textarea
+                          id={`desc-${factor.id}`}
+                          value={factor.description}
+                          onChange={(event) =>
+                            handleDescriptionChange(
+                              factor.id,
+                              event.target.value,
+                            )
+                          }
+                          onKeyDown={(event) =>
+                            handleDescriptionKeyDown(event, factor.id)
+                          }
+                          disabled={!editable}
+                          placeholder={`Describe the specific dynamics and future implications of ${factor.category.toLowerCase()}... (Use Enter for bullet points)`}
+                          className="min-h-[140px] w-full resize-none rounded-2xl border-2 border-slate-50 bg-slate-50/30 px-4 py-4 text-sm leading-relaxed outline-none transition-all focus:border-transparent focus:bg-white focus:ring-2 focus:ring-[#0F172A] disabled:cursor-not-allowed disabled:text-slate-500 sm:px-6 sm:py-5"
+                        />
                       </div>
-                      <textarea
-                        id={`desc-${factor.id}`}
-                        value={factor.description}
-                        onChange={(event) =>
-                          handleDescriptionChange(factor.id, event.target.value)
-                        }
-                        onKeyDown={(event) =>
-                          handleDescriptionKeyDown(event, factor.id)
-                        }
-                        placeholder={`Describe the specific dynamics and future implications of ${factor.category.toLowerCase()}... (Use Enter for bullet points)`}
-                        className="min-h-[140px] w-full resize-none rounded-2xl border-2 border-slate-50 bg-slate-50/30 px-4 py-4 text-sm leading-relaxed outline-none transition-all focus:border-transparent focus:bg-white focus:ring-2 focus:ring-[#0F172A] sm:px-6 sm:py-5"
-                      />
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>

@@ -7,7 +7,8 @@
 .backgroundWrap {
   position: relative;
   overflow: hidden;
-  background-color: var(--secondary); /* Matches Home Banner */
+  background-color: var(--secondary);
+  /* Matches Home Banner */
   padding-bottom: 4rem;
 }
 
@@ -15,7 +16,8 @@
   position: relative;
   z-index: 10;
   text-align: center;
-  padding: 10rem 1.5rem 6rem; /* Matches Banner's pt-32/40 */
+  padding: 10rem 1.5rem 6rem;
+  /* Matches Banner's pt-32/40 */
   max-width: 1200px;
   margin: 0 auto;
 }
@@ -33,7 +35,7 @@
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .label::before {
@@ -66,14 +68,15 @@
 
 /* Sections */
 .mainContent {
-  background-color: #fcfbf8; /* Background matches layout.tsx */
+  background-color: #fcfbf8;
+  /* Background matches layout.tsx */
   padding-top: 5rem;
   padding-bottom: 8rem;
 }
 
 .section {
   max-width: 1100px;
-  margin: 0 auto 10rem auto;
+  margin: 0 auto 4rem auto;
   padding: 0 1.5rem;
   display: grid;
   grid-template-columns: 1fr;
@@ -150,7 +153,8 @@
   gap: 1.25rem;
   padding: 1.5rem 2rem;
   background: white;
-  border: 1px solid rgba(17, 24, 39, 0.1); /* Standard Home Border */
+  border: 1px solid rgba(17, 24, 39, 0.1);
+  /* Standard Home Border */
   border-radius: 1.5rem;
   font-weight: 700;
   color: #0F172A;
@@ -165,7 +169,8 @@
 }
 
 .checkIcon {
-  color: #ff6b6b; /* Market Crash Red from Home */
+  color: #ff6b6b;
+  /* Market Crash Red from Home */
   flex-shrink: 0;
 }
 
@@ -218,4 +223,151 @@
   opacity: 0.95;
   transform: translateX(4px);
   box-shadow: 0 10px 25px rgba(15, 23, 42, 0.15);
+}
+
+/* The Founder Section Styling */
+.founderCard {
+  background: white;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  border-radius: 1.5rem;
+  padding: 2rem 1.5rem;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.02);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: center;
+}
+
+.founderCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+  border-color: rgba(15, 23, 42, 0.12);
+}
+
+.founderImageWrapper {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  margin: 0 auto 1.5rem auto;
+  overflow: hidden;
+  border-radius: 1rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+}
+
+.founderImage {
+  object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.founderCard:hover .founderImage {
+  transform: scale(1.05);
+}
+
+.founderName {
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: var(--primary);
+  margin-bottom: 0.25rem;
+}
+
+.founderTitle {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #64748b;
+  margin-bottom: 0.75rem;
+}
+
+.founderCompany {
+  display: inline-flex;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #0369a1;
+  background-color: #f0f9ff;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  border: 1px solid #e0f2fe;
+}
+
+.founderMobileHeader {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+  padding: 1.25rem;
+  background: white;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  border-radius: 1.25rem;
+}
+
+@media (min-width: 1024px) {
+  .founderMobileHeader {
+    display: none;
+  }
+}
+
+.founderMobileImageWrapper {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  flex-shrink: 0;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.quoteBlock {
+  position: relative;
+  margin-top: 3rem;
+  padding: 2.5rem;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(222, 240, 250, 0.25) 100%);
+  border: 1px solid rgba(222, 240, 250, 0.8);
+  border-left: 4px solid var(--primary);
+  border-radius: 1.5rem;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.02);
+  overflow: hidden;
+}
+
+.quoteText {
+  position: relative;
+  z-index: 10;
+  font-size: 1.15rem;
+  line-height: 1.8;
+  color: #1e293b;
+  font-weight: 600;
+  font-style: italic;
+}
+
+@media (min-width: 768px) {
+  .quoteText {
+    font-size: 1.25rem;
+  }
+}
+
+.quoteAuthor {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  position: relative;
+  z-index: 10;
+}
+
+.quoteAuthorLine {
+  width: 2rem;
+  height: 1px;
+  background-color: #cbd5e1;
+}
+
+.quoteAuthorName {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.quoteIconBg {
+  position: absolute;
+  right: 1rem;
+  top: 1rem;
+  color: rgba(15, 23, 42, 0.03);
+  pointer-events: none;
+  z-index: 1;
 }
