@@ -34,11 +34,11 @@ export default function DashboardNavbar({
         <div className="w-[280px] h-full flex items-center justify-center shrink-0">
           <Link href="/" className="flex items-center">
             <Image
-             src="/images/logo1.jpeg"
+              src="/images/logo2.jpeg"
               alt="Second Sight"
-              width={140}
-              height={100}
-              className="h-30 w-auto object-contain"
+              width={110}
+              height={80}
+              className="h-auto w-[100px] sm:w-[110px] md:w-[130px]"
               priority
             />
           </Link>
