@@ -20,11 +20,11 @@ export default function AdminNavbar({
 
   const userInitials = user?.name
     ? user.name
-        .split(" ")
-        .map((n) => n[0])
-        .join("")
-        .toUpperCase()
-        .slice(0, 2)
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2)
     : user?.email?.slice(0, 2).toUpperCase() || "??";
 
   return (
@@ -36,9 +36,9 @@ export default function AdminNavbar({
             <Image
               src="/images/logo1.jpeg"
               alt="Second Sight"
-              width={140}
-              height={100}
-              className="h-30 w-auto object-contain"
+              width={110}
+              height={75}
+              className="h-auto w-[100px] sm:w-[110px] md:w-[130px]"
               priority
             />
           </Link>
