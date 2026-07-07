@@ -418,10 +418,10 @@ export default function Navbar() {
         {/* Logo */}
         <Link href="/" className="shrink-0">
           <Image
-            src="/images/logo.png"
+            src="/images/logo1.jpeg"
             alt="Second Sight Logo"
             width={110}
-            height={60}
+            height={80}
             className="h-auto w-[100px] sm:w-[110px] md:w-[130px]"
             priority
           />

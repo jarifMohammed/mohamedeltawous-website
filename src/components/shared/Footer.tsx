@@ -15,7 +15,7 @@ export default function Footer() {
           <div className="lg:col-span-2">
             <Link href="/">
               <Image
-                src="/images/logo.png"
+                src="/images/logo1.jpeg"
                 alt="Second Sight"
                 width={120}
                 height={60}
