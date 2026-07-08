@@ -191,12 +191,12 @@ declare global {
 const SOURCE_LANGUAGE = "en";
 const LANGUAGE_STORAGE_KEY = "secondsight-language";
 
-const languages = [
-  { code: "en", label: "English", dir: "ltr" },
-  { code: "ar", label: "Arabic", dir: "rtl" },
-] as const;
+// const languages = [
+//   { code: "en", label: "English", dir: "ltr" },
+//   { code: "ar", label: "Arabic", dir: "rtl" },
+// ] as const;
 
-type LanguageCode = (typeof languages)[number]["code"];
+// type LanguageCode = (typeof languages)[number]["code"];
 
 const navItems = [
   { name: "Home", href: "/" },
@@ -205,23 +205,23 @@ const navItems = [
   { name: "How It Works", href: "/how-it-works" },
 ];
 
-function getSavedLanguage(): LanguageCode {
-  if (typeof window === "undefined") return "en";
+// function getSavedLanguage(): LanguageCode {
+//   if (typeof window === "undefined") return "en";
 
-  const savedLanguage = localStorage.getItem(LANGUAGE_STORAGE_KEY);
+//   const savedLanguage = localStorage.getItem(LANGUAGE_STORAGE_KEY);
 
-  return languages.some((item) => item.code === savedLanguage)
-    ? (savedLanguage as LanguageCode)
-    : "en";
-}
+//   return languages.some((item) => item.code === savedLanguage)
+//     ? (savedLanguage as LanguageCode)
+//     : "en";
+// }
 
-function setGoogleTranslateCookie(languageCode: LanguageCode) {
-  const cookieValue = `/${SOURCE_LANGUAGE}/${languageCode}`;
-  const expires = "max-age=31536000";
+// function setGoogleTranslateCookie(languageCode: LanguageCode) {
+//   const cookieValue = `/${SOURCE_LANGUAGE}/${languageCode}`;
+//   const expires = "max-age=31536000";
 
-  document.cookie = `googtrans=${cookieValue}; path=/; ${expires}`;
-  document.cookie = `googtrans=${cookieValue}; path=/; domain=${window.location.hostname}; ${expires}`;
-}
+//   document.cookie = `googtrans=${cookieValue}; path=/; ${expires}`;
+//   document.cookie = `googtrans=${cookieValue}; path=/; domain=${window.location.hostname}; ${expires}`;
+// }
 
 function resetGoogleTranslateToolbar() {
   document.body.style.top = "0px";
@@ -235,31 +235,31 @@ function resetGoogleTranslateToolbar() {
   }
 }
 
-function applyGoogleTranslate(languageCode: LanguageCode, retries = 12) {
-  setGoogleTranslateCookie(languageCode);
+// function applyGoogleTranslate(languageCode: LanguageCode, retries = 12) {
+//   setGoogleTranslateCookie(languageCode);
 
-  resetGoogleTranslateToolbar();
+//   resetGoogleTranslateToolbar();
 
-  const translateSelect =
-    document.querySelector<HTMLSelectElement>(".goog-te-combo");
+//   const translateSelect =
+//     document.querySelector<HTMLSelectElement>(".goog-te-combo");
 
-  if (!translateSelect) {
-    if (retries > 0) {
-      window.setTimeout(
-        () => applyGoogleTranslate(languageCode, retries - 1),
-        250,
-      );
-    }
+//   if (!translateSelect) {
+//     if (retries > 0) {
+//       window.setTimeout(
+//         () => applyGoogleTranslate(languageCode, retries - 1),
+//         250,
+//       );
+//     }
 
-    return;
-  }
+//     return;
+//   }
 
-  translateSelect.value = languageCode;
+//   translateSelect.value = languageCode;
 
-  translateSelect.dispatchEvent(new Event("change"));
+//   translateSelect.dispatchEvent(new Event("change"));
 
-  window.setTimeout(resetGoogleTranslateToolbar, 250);
-}
+//   window.setTimeout(resetGoogleTranslateToolbar, 250);
+// }
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -267,7 +267,7 @@ export default function Navbar() {
 
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [language, setLanguage] = useState<LanguageCode>("en");
+  // const [language, setLanguage] = useState<LanguageCode>("en");
   const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
   const scenarioHref = "/dashboard/new-scenario";
 
@@ -284,80 +284,80 @@ export default function Navbar() {
   };
 
   // Initialize language
-  useEffect(() => {
-    const savedLanguage = getSavedLanguage();
+  // useEffect(() => {
+  //   const savedLanguage = getSavedLanguage();
 
-    setLanguage(savedLanguage);
+  //   setLanguage(savedLanguage);
 
-    // Initial RTL/LTR setup
-    if (savedLanguage === "ar") {
-      document.documentElement.dir = "rtl";
-      document.documentElement.lang = "ar";
-    } else {
-      document.documentElement.dir = "ltr";
-      document.documentElement.lang = "en";
-    }
-  }, []);
+  //   // Initial RTL/LTR setup
+  //   if (savedLanguage === "ar") {
+  //     document.documentElement.dir = "rtl";
+  //     document.documentElement.lang = "ar";
+  //   } else {
+  //     document.documentElement.dir = "ltr";
+  //     document.documentElement.lang = "en";
+  //   }
+  // }, []);
 
   // Google Translate initialization
-  useEffect(() => {
-    const initialLanguage = getSavedLanguage();
+  // useEffect(() => {
+  //   const initialLanguage = getSavedLanguage();
 
-    setGoogleTranslateCookie(initialLanguage);
+  //   setGoogleTranslateCookie(initialLanguage);
 
-    // Initial direction setup
-    if (initialLanguage === "ar") {
-      document.documentElement.dir = "rtl";
-      document.documentElement.lang = "ar";
-    } else {
-      document.documentElement.dir = "ltr";
-      document.documentElement.lang = "en";
-    }
+  //   // Initial direction setup
+  //   if (initialLanguage === "ar") {
+  //     document.documentElement.dir = "rtl";
+  //     document.documentElement.lang = "ar";
+  //   } else {
+  //     document.documentElement.dir = "ltr";
+  //     document.documentElement.lang = "en";
+  //   }
 
-    window.googleTranslateElementInit = () => {
-      if (!window.google?.translate?.TranslateElement) {
-        return;
-      }
+  //   window.googleTranslateElementInit = () => {
+  //     if (!window.google?.translate?.TranslateElement) {
+  //       return;
+  //     }
 
-      new window.google.translate.TranslateElement(
-        {
-          pageLanguage: SOURCE_LANGUAGE,
-          includedLanguages: languages.map((item) => item.code).join(","),
-          autoDisplay: false,
-        },
-        "google_translate_element",
-      );
+  //     new window.google.translate.TranslateElement(
+  //       {
+  //         pageLanguage: SOURCE_LANGUAGE,
+  //         includedLanguages: languages.map((item) => item.code).join(","),
+  //         autoDisplay: false,
+  //       },
+  //       "google_translate_element",
+  //     );
 
-      window.setTimeout(() => {
-        applyGoogleTranslate(getSavedLanguage());
-      }, 100);
-    };
+  //     window.setTimeout(() => {
+  //       applyGoogleTranslate(getSavedLanguage());
+  //     }, 100);
+  //   };
 
-    if (!document.querySelector("#google-translate-script")) {
-      const script = document.createElement("script");
+  //   if (!document.querySelector("#google-translate-script")) {
+  //     const script = document.createElement("script");
 
-      script.id = "google-translate-script";
+  //     script.id = "google-translate-script";
 
-      script.src =
-        "https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
+  //     script.src =
+  //       "https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
 
-      script.async = true;
+  //     script.async = true;
 
-      document.body.appendChild(script);
+  //     document.body.appendChild(script);
 
-      return;
-    }
+  //     return;
+  //   }
 
-    if (window.google?.translate?.TranslateElement) {
-      window.googleTranslateElementInit();
+  //   if (window.google?.translate?.TranslateElement) {
+  //     window.googleTranslateElementInit();
 
-      return;
-    }
+  //     return;
+  //   }
 
-    window.setTimeout(() => {
-      applyGoogleTranslate(initialLanguage);
-    }, 100);
-  }, []);
+  //   window.setTimeout(() => {
+  //     applyGoogleTranslate(initialLanguage);
+  //   }, 100);
+  // }, []);
 
   // Scroll Effect
   useEffect(() => {
@@ -376,26 +376,26 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const handleLanguageChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    const nextLanguage = e.target.value as LanguageCode;
+  // const handleLanguageChange = (e: ChangeEvent<HTMLSelectElement>) => {
+  //   const nextLanguage = e.target.value as LanguageCode;
 
-    setLanguage(nextLanguage);
+  //   setLanguage(nextLanguage);
 
-    localStorage.setItem(LANGUAGE_STORAGE_KEY, nextLanguage);
+  //   localStorage.setItem(LANGUAGE_STORAGE_KEY, nextLanguage);
 
-    setGoogleTranslateCookie(nextLanguage);
+  //   setGoogleTranslateCookie(nextLanguage);
 
-    // RTL/LTR support
-    if (nextLanguage === "ar") {
-      document.documentElement.dir = "rtl";
-      document.documentElement.lang = "ar";
-    } else {
-      document.documentElement.dir = "ltr";
-      document.documentElement.lang = "en";
-    }
+  //   // RTL/LTR support
+  //   if (nextLanguage === "ar") {
+  //     document.documentElement.dir = "rtl";
+  //     document.documentElement.lang = "ar";
+  //   } else {
+  //     document.documentElement.dir = "ltr";
+  //     document.documentElement.lang = "en";
+  //   }
 
-    window.location.reload();
-  };
+  //   window.location.reload();
+  // };
 
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/";
@@ -418,7 +418,7 @@ export default function Navbar() {
         {/* Logo */}
         <Link href="/" className="shrink-0">
           <Image
-            src="/images/logo1.jpeg"
+            src="/images/logo1-removebg.png"
             alt="Second Sight Logo"
             width={110}
             height={80}
@@ -457,7 +457,7 @@ export default function Navbar() {
         {/* Right Side */}
         <div className="flex items-center gap-3 md:gap-8">
           {/* Language Switcher */}
-          <div className="hidden md:flex items-center">
+          {/* <div className="hidden md:flex items-center">
             <Select
               value={language}
               onValueChange={(value) =>
@@ -485,7 +485,7 @@ export default function Navbar() {
                 ))}
               </SelectContent>
             </Select>
-          </div>
+          </div> */}
 
           {/* CTA Button */}
           {!session && (
@@ -561,7 +561,7 @@ export default function Navbar() {
       >
         <div className="container mx-auto flex flex-col px-4 py-4">
           {/* Mobile Language Switcher */}
-          <div className="notranslate mb-4 flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-3">
+          {/* <div className="notranslate mb-4 flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-3">
             <Globe size={18} />
 
             <select
@@ -575,7 +575,7 @@ export default function Navbar() {
                 </option>
               ))}
             </select>
-          </div>
+          </div> */}
 
           {/* Mobile Nav */}
           {navItems.map((item) => {

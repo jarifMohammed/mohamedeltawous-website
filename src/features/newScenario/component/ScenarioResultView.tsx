@@ -23,6 +23,7 @@ import {
 import { ScenarioResult, WindtunnelPayload } from "../types/newScenario.types";
 import StrategicMatrixChart from "./StrategicMatrixChart";
 import DataMismatchModal from "./DataMismatchModal";
+import Image from "next/image";
 
 /**
  * Helper to truncate text to exactly N words.
@@ -264,9 +265,7 @@ const ScenarioResultView: React.FC = () => {
   if (isPending) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-12">
-        <div className="w-24 h-24 rounded-3xl bg-blue-50 flex items-center justify-center mb-8 animate-pulse shadow-sm">
-          <Sparkles className="w-12 h-12 text-blue-600 animate-spin-slow" />
-        </div>
+     <Image src={"/images/logo1-removebg.png"} alt="Second Sight" width={600} height={600} className="w-48 h-48" />
         <h2 className="text-3xl font-black text-[#0F172A] mb-4 tracking-tighter">
           Synthesizing Strategic Worlds
         </h2>
@@ -566,7 +565,7 @@ const ScenarioResultView: React.FC = () => {
                     key={s.id}
                     className="group flex flex-col overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-sm transition-all duration-500 hover:shadow-2xl hover:shadow-slate-200/50 sm:rounded-[2.5rem]"
                   >
-                    <div className={`h-2 w-full ${color.bg}`} />
+                    <div className={`h-2 w-full bg-[#D9F0FF]`} />
 
                     <div className="flex flex-1 flex-col p-5 sm:p-10">
                       <div className="mb-6 flex items-start justify-between sm:mb-8">
