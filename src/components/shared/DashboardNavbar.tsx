@@ -34,7 +34,7 @@ export default function DashboardNavbar({
         <div className="w-[280px] h-full flex items-center justify-center shrink-0">
           <Link href="/" className="flex items-center">
             <Image
-              src="/images/logo2.jpeg"
+              src="/images/logo1-removebg.png"
               alt="Second Sight"
               width={110}
               height={80}
