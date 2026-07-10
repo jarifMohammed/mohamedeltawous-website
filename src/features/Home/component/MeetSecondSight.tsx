@@ -351,7 +351,7 @@ export default function MeetSecondSight() {
                 {/* Central Core Glassmorphic Capsule */}
                 <div className="w-[110px] h-[110px] sm:w-[140px] sm:h-[140px] md:w-[150px] md:h-[150px] rounded-full bg-gradient-to-br from-[#C2E5F7] to-[#9AD1F0] flex items-center justify-center shadow-[inset_0_4px_12px_rgba(255,255,255,0.7)]">
                   <Image
-                    src="/images/logo1.jpeg"
+                    src="/images/logo1-removebg.png"
                     alt="Second Sight Logo"
                     width={110}
                     height={60}

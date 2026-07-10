@@ -264,23 +264,63 @@ const ScenarioResultView: React.FC = () => {
 
   if (isPending) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-12">
-     <Image src={"/images/logo1-removebg.png"} alt="Second Sight" width={600} height={600} className="w-48 h-48" />
-        <h2 className="text-3xl font-black text-[#0F172A] mb-4 tracking-tighter">
-          Synthesizing Strategic Worlds
-        </h2>
-        <p className="text-slate-500 max-w-lg mx-auto font-medium leading-relaxed">
-          Our AI is weaving complex narratives based on your strategic axes.
-          This may take up to 2 minutes as we calculate cross-sector
-          implications and signposts.
-        </p>
-        <div className="mt-8 flex items-center gap-3 bg-slate-50 px-6 py-3 rounded-2xl border border-slate-100">
-          <Loader2 className="w-5 h-5 animate-spin text-blue-600" />
-          <span className="text-sm font-bold text-slate-600 uppercase tracking-widest">
-            Processing Scenario Engine...
-          </span>
-        </div>
-      </div>
+     <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-12">
+  {/* Logo */}
+  <div className="relative mb-6">
+    {/* Glow */}
+    <div className="absolute inset-0 rounded-full bg-blue-500/20 blur-3xl animate-pulse scale-125" />
+
+    {/* Rotating Ring */}
+<div className="absolute -inset-4 rounded-full border-2 border-blue-500/20 border-t-blue-600 animate-spin [animation-duration:8s]" />
+    {/* Logo */}
+    <Image
+      src="/images/logo1-removebg.png"
+      alt="Second Sight"
+      width={600}
+      height={600}
+      className="relative w-48 h-48 animate-[float_3s_ease-in-out_infinite]"
+    />
+  </div>
+
+  <h2 className="text-3xl font-black text-[#0F172A] mb-4 tracking-tighter">
+    Synthesizing Strategic Worlds
+  </h2>
+
+  <p className="text-slate-500 max-w-lg mx-auto font-medium leading-relaxed">
+    Our AI is weaving complex narratives based on your strategic axes.
+    This may take up to 2 minutes as we calculate cross-sector
+    implications and signposts.
+  </p>
+
+  {/* Loader */}
+  <div className="mt-8 flex items-center gap-3 bg-slate-50 px-6 py-3 rounded-2xl border border-slate-100 shadow-sm">
+    <Loader2 className="w-5 h-5 animate-spin text-blue-600" />
+
+    <span className="text-sm font-bold text-slate-600 uppercase tracking-widest">
+      Processing Scenario Engine...
+    </span>
+  </div>
+
+  {/* Animated Dots */}
+  <div className="flex gap-2 mt-6">
+    <span className="w-2 h-2 rounded-full bg-blue-600 animate-bounce [animation-delay:0ms]" />
+    <span className="w-2 h-2 rounded-full bg-blue-600 animate-bounce [animation-delay:200ms]" />
+    <span className="w-2 h-2 rounded-full bg-blue-600 animate-bounce [animation-delay:400ms]" />
+  </div>
+
+  {/* Float Animation */}
+  <style jsx>{`
+    @keyframes float {
+      0%,
+      100% {
+        transform: translateY(0px);
+      }
+      50% {
+        transform: translateY(-12px);
+      }
+    }
+  `}</style>
+</div>
     );
   }
 
@@ -554,72 +594,87 @@ const ScenarioResultView: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 items-start gap-5 px-1 sm:gap-8 sm:px-4 xl:grid-cols-2">
-            {scenarios
-              .filter((s) => s.name && s.story) // Filter out metadata objects that aren't real scenarios
-              .map((s, idx) => {
-                const color = COLORS[idx % COLORS.length];
-                const activeTab = activeTabs[s.id] || "narrative";
+      {[...scenarios]
+  .filter((s) => s.name && s.story)
+  .sort((a, b) => {
+    const order: Record<string, number> = {
+      "A2+B2": 1, // High/Low
+      "A2+B1": 2, // High/High
+      "A1+B2": 3, // Low/High
+      "A1+B1": 4, // Low/Low
+    };
 
-                return (
-                  <div
-                    key={s.id}
-                    className="group flex flex-col overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-sm transition-all duration-500 hover:shadow-2xl hover:shadow-slate-200/50 sm:rounded-[2.5rem]"
-                  >
-                    <div className={`h-2 w-full bg-[#D9F0FF]`} />
+    return (
+      (order[a.combination as keyof typeof order] ?? 999) -
+      (order[b.combination as keyof typeof order] ?? 999)
+    );
+  })
+  .map((s, idx) => {
+    const color = COLORS[idx % COLORS.length];
+    const activeTab = activeTabs[s.id] || "narrative";
 
-                    <div className="flex flex-1 flex-col p-5 sm:p-10">
-                      <div className="mb-6 flex items-start justify-between sm:mb-8">
-                        <div className="space-y-2">
-                          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                            <h2 className="text-xl font-black tracking-tight text-[#0F172A] transition-colors group-hover:text-blue-600 sm:text-2xl">
-                              {s.name}
-                            </h2>
-                            <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-slate-50 text-slate-400 border border-slate-100 flex items-center gap-1.5 shadow-sm font-mono">
-                              <LayoutGrid className="w-3 h-3" />
-                              {s.combination || `Scenario ${idx + 1}`}
-                              {s.combination === "A1+B1" && " (Low/Low)"}
-                              {s.combination === "A1+B2" && " (Low/High)"}
-                              {s.combination === "A2+B1" && " (High/High)"}
-                              {s.combination === "A2+B2" && " (High/Low)"}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
+    return (
+      <div
+        key={s.id}
+        className="group flex flex-col overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-sm transition-all duration-500 hover:shadow-2xl hover:shadow-slate-200/50 sm:rounded-[2.5rem]"
+      >
+        <div className="h-2 w-full bg-[#D9F0FF]" />
 
-                      {/* Tabs Implementation */}
-                      <div className="mb-6 grid grid-cols-1 gap-1 rounded-2xl border border-slate-100/50 bg-slate-50 p-1.5 sm:mb-8 sm:grid-cols-3">
-                        {[
-                          {
-                            id: "narrative",
-                            label: "Narrative",
-                            icon: Sparkles,
-                          },
-                          {
-                            id: "implications",
-                            label: "Implications",
-                            icon: Target,
-                          },
-                          { id: "signposts", label: "Signposts", icon: Search },
-                        ].map((tab) => (
-                          <button
-                            key={tab.id}
-                            onClick={() =>
-                              setActiveTabs({ ...activeTabs, [s.id]: tab.id })
-                            }
-                            className={`
-                        flex items-center justify-center gap-2 rounded-xl py-2.5 text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer
-                        ${
-                          activeTab === tab.id
-                            ? "bg-white text-[#0F172A] shadow-sm border border-slate-200"
-                            : "text-slate-400 hover:text-slate-600"
-                        }
-                      `}
-                          >
-                            <tab.icon className="w-3.5 h-3.5" />
-                            {tab.label}
-                          </button>
-                        ))}
-                      </div>
+        <div className="flex flex-1 flex-col p-5 sm:p-10">
+          <div className="mb-6 flex items-start justify-between sm:mb-8">
+            <div className="space-y-2">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                <h2 className="text-xl font-black tracking-tight text-[#0F172A] transition-colors group-hover:text-blue-600 sm:text-2xl">
+                  {s.name}
+                </h2>
+
+                <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-slate-50 text-slate-400 border border-slate-100 flex items-center gap-1.5 shadow-sm font-mono">
+                  <LayoutGrid className="w-3 h-3" />
+                  {s.combination || `Scenario ${idx + 1}`}
+                  {s.combination === "A1+B1" && " (Low/Low)"}
+                  {s.combination === "A1+B2" && " (Low/High)"}
+                  {s.combination === "A2+B1" && " (High/High)"}
+                  {s.combination === "A2+B2" && " (High/Low)"}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Tabs Implementation */}
+          <div className="mb-6 grid grid-cols-1 gap-1 rounded-2xl border border-slate-100/50 bg-slate-50 p-1.5 sm:mb-8 sm:grid-cols-3">
+            {[
+              {
+                id: "narrative",
+                label: "Narrative",
+                icon: Sparkles,
+              },
+              {
+                id: "implications",
+                label: "Implications",
+                icon: Target,
+              },
+              {
+                id: "signposts",
+                label: "Signposts",
+                icon: Search,
+              },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() =>
+                  setActiveTabs({ ...activeTabs, [s.id]: tab.id })
+                }
+                className={`flex items-center justify-center gap-2 rounded-xl py-2.5 text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer ${
+                  activeTab === tab.id
+                    ? "bg-white text-[#0F172A] shadow-sm border border-slate-200"
+                    : "text-slate-400 hover:text-slate-600"
+                }`}
+              >
+                <tab.icon className="w-3.5 h-3.5" />
+                {tab.label}
+              </button>
+            ))}
+          </div>
 
                       {/* Tab Content */}
                       <div className="flex min-h-[240px] flex-1 flex-col sm:min-h-[300px]">
