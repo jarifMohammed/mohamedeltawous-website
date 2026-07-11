@@ -69,6 +69,7 @@ export const sendScenarioInvite = async ({
 export const createWorkshopSession = async (
   data: CreateWorkshopPayload,
 ): Promise<CreateWorkshopResponse> => {
+  console.log(data)
   const response = await axiosInstance.post("/workshop/create", data);
   return response.data;
 };

@@ -200,6 +200,7 @@ const ForceClassificationView: React.FC<ForceClassificationViewProps> = ({
                 },
                 focalQuestion: company.focalQuestion,
                 horizonYear: company.horizonYear,
+                horizonMonth: company.horizonMonth,
                 classification: fullResponse.data,
                 conversationHistory: fullResponse.history,
               };

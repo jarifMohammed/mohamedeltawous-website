@@ -138,14 +138,19 @@ function NewScenarioContent() {
     useSubmitGuestFactor();
   const { mutateAsync: fetchWorkshopBySession, isPending: isFetchingWorkshop } =
     useWorkshopBySession();
-  const { mutateAsync: editGuestFactorMutate, isPending: isEditingGuestFactor } =
-    useEditGuestFactor();
+  const {
+    mutateAsync: editGuestFactorMutate,
+    isPending: isEditingGuestFactor,
+  } = useEditGuestFactor();
 
   const [dfError, setDfError] = useState("");
-  const [editingGuestEmail, setEditingGuestEmail] = useState<string | null>(null);
+  const [editingGuestEmail, setEditingGuestEmail] = useState<string | null>(
+    null,
+  );
   const [editingOldFactor, setEditingOldFactor] = useState<string>("");
   const [editingNewFactor, setEditingNewFactor] = useState<string>("");
-  const [isEditGuestFactorDialogOpen, setIsEditGuestFactorDialogOpen] = useState(false);
+  const [isEditGuestFactorDialogOpen, setIsEditGuestFactorDialogOpen] =
+    useState(false);
   const [customCatInput, setCustomCatInput] = useState("");
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
@@ -247,6 +252,7 @@ function NewScenarioContent() {
     }
   };
 
+
   const handleStartWorkshop = async () => {
     if (!company.name.trim()) {
       toast.error("Please enter a company name.");
@@ -262,6 +268,11 @@ function NewScenarioContent() {
       toast.error("Please choose a horizon year.");
       return;
     }
+     if (!company.horizonMonth.trim()) {
+      toast.error("Please choose a horizon month.");
+      return;
+    }
+
 
     if (workshopSessionId) {
       handleContinue();
@@ -279,6 +290,7 @@ function NewScenarioContent() {
             : company.companySummary,
           focalQuestion: company.focalQuestion,
           horizonYear: company.horizonYear,
+          horizonMonth: company.horizonMonth,
         },
         forces: [],
       });
@@ -375,8 +387,8 @@ function NewScenarioContent() {
         "response" in error &&
         typeof (error as { response?: { data?: { message?: string } } })
           .response?.data?.message === "string"
-          ? (error as { response: { data: { message: string } } }).response
-              .data.message
+          ? (error as { response: { data: { message: string } } }).response.data
+              .message
           : "Failed to send invitation.";
 
       toast.error(message);
@@ -384,7 +396,8 @@ function NewScenarioContent() {
   };
 
   const handleSaveEditedGuestFactor = async () => {
-    if (!workshopSessionId || !editingGuestEmail || !editingNewFactor.trim()) return;
+    if (!workshopSessionId || !editingGuestEmail || !editingNewFactor.trim())
+      return;
 
     try {
       await editGuestFactorMutate({
@@ -404,8 +417,11 @@ function NewScenarioContent() {
 
       // Also update the selected keys if the old factor was selected
       const oldKey = getGuestForceKey(editingGuestEmail, editingOldFactor);
-      const newKey = getGuestForceKey(editingGuestEmail, editingNewFactor.trim());
-      
+      const newKey = getGuestForceKey(
+        editingGuestEmail,
+        editingNewFactor.trim(),
+      );
+
       setSelectedGuestForceKeys((current) => {
         if (current.includes(oldKey)) {
           return current.map((k) => (k === oldKey ? newKey : k));
@@ -485,7 +501,12 @@ function NewScenarioContent() {
   };
 
   useEffect(() => {
-    if (isInviteMode || currentStep !== 3 || classification || !workshopSessionId) {
+    if (
+      isInviteMode ||
+      currentStep !== 3 ||
+      classification ||
+      !workshopSessionId
+    ) {
       return;
     }
 
@@ -528,7 +549,9 @@ function NewScenarioContent() {
                 {isInviteMode ? "Guest invitation" : "Scenario workshop"}
               </p>
               <h1 className="mt-1 text-xl font-black text-[#0F172A]">
-                {isInviteMode ? "Complete invited Moving Factors" : "Moving Factors"}
+                {isInviteMode
+                  ? "Complete invited Moving Factors"
+                  : "Moving Factors"}
               </h1>
               {isInviteMode && (
                 <p className="mt-1 text-sm text-slate-500">
@@ -806,25 +829,54 @@ function NewScenarioContent() {
 
               <div>
                 <label
+                  htmlFor="horizonMonth"
+                  className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 block"
+                >
+                  Scenario Horizon (Month)
+                </label>
+
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  {["3", "6", "12"].map((month) => (
+                    <button
+                      key={month}
+                      type="button"
+                      onClick={() => updateCompany({ horizonMonth: month })}
+                      className={`
+          flex-1 py-3 rounded-xl text-sm font-bold border-2 transition-all
+          ${
+            company.horizonMonth === month
+              ? "bg-[#0F172A] border-[#0F172A] text-white shadow-lg"
+              : "bg-white border-slate-100 text-slate-500 hover:border-slate-200"
+          }
+        `}
+                    >
+                      {month}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label
                   htmlFor="horizonYear"
                   className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 block"
                 >
                   Scenario Horizon (Year)
                 </label>
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-                  {["2030", "2035", "2040", "2045", "2050"].map((year) => (
+
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  {["3", "5", "10"].map((year) => (
                     <button
                       key={year}
                       type="button"
                       onClick={() => updateCompany({ horizonYear: year })}
                       className={`
-                        flex-1 py-3 rounded-xl text-sm font-bold border-2 transition-all
-                        ${
-                          company.horizonYear === year
-                            ? "bg-[#0F172A] border-[#0F172A] text-white shadow-lg"
-                            : "bg-white border-slate-100 text-slate-500 hover:border-slate-200"
-                        }
-                      `}
+          flex-1 py-3 rounded-xl text-sm font-bold border-2 transition-all
+          ${
+            company.horizonYear === year
+              ? "bg-[#0F172A] border-[#0F172A] text-white shadow-lg"
+              : "bg-white border-slate-100 text-slate-500 hover:border-slate-200"
+          }
+        `}
                     >
                       {year}
                     </button>
@@ -1279,6 +1331,7 @@ function NewScenarioContent() {
                         : company.companySummary,
                       focalQuestion: company.focalQuestion,
                       horizonYear: company.horizonYear,
+                      horizonMonth: company.horizonMonth,
                     },
                     focalQuestion: company.focalQuestion,
                     forces: getMergedForcesForClassification(),

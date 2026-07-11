@@ -108,7 +108,7 @@ export default function Footer() {
                 <Link href="/contact">Sales</Link>
               </li> */}
               <li>
-                <Link href="/support">Support</Link>
+                <Link href="#support">Support</Link>
               </li>
               <li>
                 <Link href="/partners">Partners</Link>

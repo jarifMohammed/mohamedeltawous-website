@@ -29,7 +29,8 @@ const emptyCompany: CompanyInfo = {
   industry: "",
   focalQuestion: "",
   companySummary: "",
-  horizonYear: "2030",
+  horizonYear: "",
+  horizonMonth: "",
   websiteUrl: "",
 };
 
