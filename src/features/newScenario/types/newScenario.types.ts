@@ -12,6 +12,7 @@ export interface CompanyInfo {
   focalQuestion: string;
   companySummary: string;
   horizonYear: string;
+  horizonMonth: string;
   websiteUrl?: string;
 }
 
@@ -71,6 +72,7 @@ export interface CreateWorkshopPayload {
     summary?: string;
     focalQuestion: string;
     horizonYear: string;
+    horizonMonth: string;
   };
   forces?: string[];
 }
@@ -109,6 +111,7 @@ export interface AxesPayload {
   };
   focalQuestion: string;
   horizonYear: string;
+  horizonMonth: string;
   classification: {
     predetermined: (string | PredeterminedItem)[];
     uncertainties: (string | UncertaintyItem)[];
