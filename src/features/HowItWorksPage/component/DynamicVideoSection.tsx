@@ -19,7 +19,7 @@ const MOCK_VIDEOS = [
     description:
       "Discover how our Strategic Decision platform guides you from uncertainty to high-conviction decision making, testing multiple futures.",
     date: "Oct 24, 2023",
-    src: "/videos/second-sight.webm",
+    src: "/videos/SecondSight.webm",
     thumbnail:
       "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=800",
   },

@@ -772,11 +772,11 @@ export default function HistoryView() {
                             <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b border-slate-50 dark:border-slate-800 pb-4 mb-4">
                               <h4 className="text-lg font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
                                 <span className="text-xs bg-slate-100 dark:bg-slate-800 text-slate-500 px-2 py-0.5 rounded font-mono">
-                                  {s.combination || `Scenario ${idx + 1}`}
-                                  {s.combination === "A1+B1" && " (Low/Low)"}
-                                  {s.combination === "A1+B2" && " (Low/High)"}
-                                  {s.combination === "A2+B1" && " (High/High)"}
-                                  {s.combination === "A2+B2" && " (High/Low)"}
+                                  {s.combination === "A1+B1" ? "Low/Low" :
+                                   s.combination === "A1+B2" ? "Low/High" :
+                                   s.combination === "A2+B1" ? "High/High" :
+                                   s.combination === "A2+B2" ? "High/Low" :
+                                   (s.combination || `Scenario ${idx + 1}`)}
                                 </span>
                                 {s.name}
                               </h4>
