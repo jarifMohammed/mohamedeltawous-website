@@ -84,13 +84,13 @@ const ScenarioResultView: React.FC = () => {
   const getScenarioCombinationLabel = (combination?: string) => {
     switch (combination) {
       case "A1+B2":
-        return "Left/Top";
+        return "Low/High";
       case "A2+B2":
-        return "Right/Top";
+        return "High/High";
       case "A1+B1":
-        return "Left/Bottom";
+        return "Low/Low";
       case "A2+B1":
-        return "Right/Bottom";
+        return "High/Low";
       default:
         return combination || "";
     }
@@ -616,10 +616,10 @@ const ScenarioResultView: React.FC = () => {
               .filter((s) => s.name && s.story)
               .sort((a, b) => {
                 const order: Record<string, number> = {
-                  "A1+B2": 1, // Left/Top
-                  "A2+B2": 2, // Right/Top
-                  "A1+B1": 3, // Left/Bottom
-                  "A2+B1": 4, // Right/Bottom
+                  "A1+B2": 1, // Low/High
+                  "A2+B2": 2, // High/High
+                  "A1+B1": 3, // Low/Low
+                  "A2+B1": 4, // High/Low
                 };
 
                 return (

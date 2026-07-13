@@ -726,10 +726,10 @@ export default function HistoryView() {
                                 const details = scenarioObj as { name: string; summary: string };
 
                                 const quadrantLabel: Record<string, string> = {
-                                  topLeft: "Left/Top",
-                                  topRight: "Right/Top",
-                                  bottomLeft: "Left/Bottom",
-                                  bottomRight: "Right/Bottom",
+                                  topLeft: "Low/High",
+                                  topRight: "High/High",
+                                  bottomLeft: "Low/Low",
+                                  bottomRight: "High/Low",
                                 };
 
                                 return (
@@ -767,10 +767,10 @@ export default function HistoryView() {
                             <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b border-slate-50 dark:border-slate-800 pb-4 mb-4">
                               <h4 className="text-lg font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
                                 <span className="text-xs bg-slate-100 dark:bg-slate-800 text-slate-500 px-2 py-0.5 rounded font-mono">
-                                  {s.combination === "A1+B2" ? "Left/Top" :
-                                    s.combination === "A2+B2" ? "Right/Top" :
-                                      s.combination === "A1+B1" ? "Left/Bottom" :
-                                        s.combination === "A2+B1" ? "Right/Bottom" :
+                                  {s.combination === "A1+B2" ? "Low/High" :
+                                    s.combination === "A2+B2" ? "High/High" :
+                                      s.combination === "A1+B1" ? "Low/Low" :
+                                        s.combination === "A2+B1" ? "High/Low" :
                                           (s.combination || `Scenario ${idx + 1}`)}
                                 </span>
                                 {s.name}
