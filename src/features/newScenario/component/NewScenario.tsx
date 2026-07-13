@@ -252,6 +252,17 @@ function NewScenarioContent() {
     }
   };
 
+  const handleToggleHorizonMonth = (month: string) => {
+    updateCompany({
+      horizonMonth: company.horizonMonth === month ? "" : month,
+    });
+  };
+
+  const handleToggleHorizonYear = (year: string) => {
+    updateCompany({
+      horizonYear: company.horizonYear === year ? "" : year,
+    });
+  };
 
   const handleStartWorkshop = async () => {
     if (!company.name.trim()) {
@@ -834,7 +845,7 @@ function NewScenarioContent() {
                     <button
                       key={month}
                       type="button"
-                      onClick={() => updateCompany({ horizonMonth: month })}
+                      onClick={() => handleToggleHorizonMonth(month)}
                       className={`
           flex-1 py-3 rounded-xl text-sm font-bold border-2 transition-all
           ${company.horizonMonth === month
@@ -861,7 +872,7 @@ function NewScenarioContent() {
                     <button
                       key={year}
                       type="button"
-                      onClick={() => updateCompany({ horizonYear: year })}
+                      onClick={() => handleToggleHorizonYear(year)}
                       className={`
           flex-1 py-3 rounded-xl text-sm font-bold border-2 transition-all
           ${company.horizonYear === year
